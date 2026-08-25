@@ -94,7 +94,39 @@ fmt_opt_stats <- function(includeStats) {
   return(includeStats)
 }
 
-fmt_opt_page_size <- function(opt, call) {}
+
+#' Check and format the "pageSize" option passed to `oag_set_options()`
+#'
+#' @inheritParams oag_query
+#' @param pageSize A positive integer indicating the page size of a query. Page
+#' size corresponds to the number of records returned.
+#'
+#' @returns A string following OpenAIRE Graph API documentation that can be
+#' added to an API call to specify the page size of a query. If `pageSize` is
+#' NULL at the input, the result returned will also be NULL.
+#'
+#' @keywords internal
+
+fmt_opt_page_size <- function(pageSize) {
+  call <- rlang::caller_env()
+
+  if (!is.null(pageSize)) {
+    if (!rlang::is_scalar_integerish(pageSize) || pageSize < 1) {
+      cli::cli_abort(
+        "{.var pageSize} must be a scalar positive integer.",
+        call = call
+      )
+    } else if (pageSize > 100) {
+      cli::cli_abort("{.var pageSize} cannot exceed 100.", call = call)
+    } else {
+      pageSize <- paste0("pageSize=", pageSize)
+    }
+  } else {
+    pageSize <- NULL
+  }
+
+  return(pageSize)
+}
 
 fmt_opt_page <- function(opt, call) {}
 
