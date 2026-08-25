@@ -61,6 +61,45 @@ fmt_opt_sorting <- function(sortBy, entity) {
   }
 }
 
+#' Check and format the "includeStats" option passed to `oag_set_options()`
+#'
+#' @inheritParams oag_query
+#' @param includeStats A scalar logical indicating whether statistics about the
+#' query should included (`TRUE`) or not (`FALSE`).
+#'
+#' @returns A string following OpenAIRE Graph API documentation that can be
+#' added to an API call to control the inclusion of query statistics. If
+#' `includeStats` is NULL at the input, the result returned will also be NULL.
+#'
+#' @keywords internal
+
+fmt_opt_stats <- function(includeStats) {
+  call <- rlang::caller_env()
+
+  if (!is.null(includeStats)) {
+    if (!rlang::is_scalar_logical(includeStats)) {
+      cli::cli_abort(
+        "{.var includeStats} must be a logical scalar or NULL.",
+        call = call
+      )
+    } else if (includeStats) {
+      includeStats <- "includeStats=true"
+    } else {
+      includeStats <- "includeStats=false"
+    }
+  } else {
+    includeStats <- NULL
+  }
+
+  return(includeStats)
+}
+
+fmt_opt_page_size <- function(opt, call) {}
+
+fmt_opt_page <- function(opt, call) {}
+
+fmt_opt_cursor <- function(opt, call) {}
+
 #' Get the list of available fields for sorting in the entities
 #'
 #' @inheritParams oag_query
