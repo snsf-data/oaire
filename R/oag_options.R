@@ -6,7 +6,9 @@
 #' values can only be "ASC" (ascending) or "DESC" (descending).
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
-#' added to an API call to control sorting.
+#' added to an API call to control sorting. If `sortBy` is NULL at the input,
+#' the result returned will also be NULL.
+#'
 #' @keywords internal
 
 fmt_opt_sorting <- function(sortBy, entity) {
