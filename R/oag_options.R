@@ -1,3 +1,64 @@
+#' Check and format sorting option passed to `oag_set_options()`
+#'
+#' @inheritParams oag_query
+#' @param sortBy A named character vector with the fields on which to sort the
+#' results from the queried entity. Names must be valid sorting fields and
+#' values can only be "ASC" (ascending) or "DESC" (descending).
+#'
+#' @returns A string following OpenAIRE Graph API documentation that can be
+#' added to an API call to control sorting.
+#' @keywords internal
+
+fmt_opt_sorting <- function(sortBy, entity) {
+  call <- rlang::caller_env()
+
+  if (!is.null(sortBy)) {
+    if (!rlang::is_bare_character(sortBy) || !rlang::is_vector(sortBy)) {
+      sorting_error_msg(
+        "The object passed to {.arg sortBy} must be a character vector.",
+        call
+      )
+    }
+    if (!rlang::is_named(sortBy)) {
+      sorting_error_msg(
+        "The character vector passed to {.arg sortBy} must be named.",
+        call
+      )
+    }
+    if (!all(sortBy %in% c("ASC", "DESC"))) {
+      sorting_error_msg(
+        paste0(
+          "The character vector passed to {.arg sortBy} can only contains ",
+          "\"ASC\" (ascending) or \"DESC\" (descending) as values."
+        ),
+        call
+      )
+    }
+
+    # Value that can be used to sort
+    sorting_fields <- get_sorting_fields(entity)
+
+    if (!all(names(sortBy) %in% sorting_fields)) {
+      cli::cli_abort(
+        paste0(
+          "When working with the \"{entity}\" entity, only the following ",
+          "fields can be used to sort the results: {.var {sorting_fields}}."
+        )
+      )
+    }
+
+    # Glue together sorting fields and direction (e.g. "relevance ASC")
+    sorting_formatted <- paste0(names(sortBy), " ", sortBy)
+    # Combine the sorting options together using a coma separator (if only one
+    # sorting option, nothing will be collpase and will stay as is).
+    sorting_formatted <- paste0(sorting_formatted, collapse = ", ")
+
+    return(sorting_formatted)
+  } else {
+    return(NULL)
+  }
+}
+
 #' Get the list of available fields for sorting in the entities
 #'
 #' @inheritParams oag_query
