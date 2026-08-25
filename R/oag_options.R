@@ -1,3 +1,68 @@
+#' Collect the options to use in a query to the OpenAIRE Graph API
+#'
+#' This function collects the options requirements to use when building a query.
+#' The validity of the options are collected without any checks. The checks will
+#' take place later, after being passed to `oag_query()`.
+#'
+#' @param sortBy A named character vector with the field(s) on which to sort the
+#' results. Names must be valid sorting fields, only accepting the values "ASC"
+#' (ascending) and "DESC" (descending) as input. Note that the fields on which
+#' results can be sorted vary across entities. To get the list of sorting fields
+#' for a given entity use `get_sorting_fields()`.
+#' @param includeStats A scalar logical indicating whether statistics about the
+#' query should be included (`TRUE`) or not (`FALSE`) in the results.
+#' @param pageSize A positive integer indicating the number of records per page
+#' a query should return. The OpenAIRE Graph API has a limit of 100 records per
+#' page.
+#' @param page A positive integer indicating the page the query should return.
+#' Using this argument trigger an offset-based paging query. Note that the
+#' `page` (offset-based paging) and `cursor` (cursor-based paging) arguments
+#' cannot be used simultaneously.
+#' @param cursor A logical indicating whether to use cursor-based paging when
+#' querying the OpenAIRE Graph API (`TRUE`) or not (`FALSE`). Note that the
+#' `cursor` (cursor-based paging) and `page` (offset-based paging) arguments
+#' cannot be used simultaneously.
+#'
+#' @returns A list of class `oag_options` with the options requirements to pass
+#' to `oa_query()`. Note that at this stage, the validity of the options has not
+#' been checked yet.
+#' @export
+#'
+#' @examples
+#' # Example of query options with offset-based paging with sorting
+#' oag_options(
+#'   sortBy = c(prevalence = "ASC"),
+#'   includeStats = TRUE,
+#'   pageSize = 50,
+#'   page = 1
+#' )
+#'
+#' # Example of query options with cursor-based paging and sorting
+#' oag_options(
+#'   sortBy = c(prevalence = "DESC"),
+#'   includeStats = FALSE,
+#'   pageSize = 100,
+#'   cursor = TRUE
+#' )
+
+oag_options <- function(
+    sortBy = NULL,
+    includeStats = NULL,
+    pageSize = NULL,
+    page = NULL,
+    cursor = NULL
+) {
+  options <- list(
+    sortBy = sortBy,
+    includeStats = includeStats,
+    pageSize = pageSize,
+    page = page,
+    cursor = cursor
+  )
+
+  structure(options, class = c("oag_options", "character"))
+}
+
 #' Check and format sorting option passed to `oag_set_options()`
 #'
 #' @inheritParams oag_query
