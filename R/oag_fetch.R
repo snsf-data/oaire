@@ -23,3 +23,36 @@
 oag_entities <- function() {
   c("research-products", "organizations", "datasources", "projects", "persons")
 }
+
+
+#' Get the OpenAIRE Graph API url for a given entity
+#'
+#' @param entity A string with the entity to query. It must match an entity
+#' returned by `oag_entities()`.
+#'
+#' @returns A string with the URL to the API for the given entity.
+#' @export
+#'
+#' @examples
+#' get_oag_api_url("datasources")
+
+get_oag_api_url <- function(entity) {
+  # Only entities returned by `oag_entities()` are accepted
+  entity <- rlang::arg_match(entity, oag_entities())
+  # Base OpenAIRE Graph API URL
+  api_url <- "https://api.openaire.eu/graph/v3"
+
+  type_url <- switch(
+    entity,
+    products = "research-products",
+    organisations = "organizations",
+    sources = "datasources",
+    projects = "projects",
+    persons = "persons"
+  )
+
+  url <- file.path(api_url, type_url)
+
+  return(url)
+}
+
