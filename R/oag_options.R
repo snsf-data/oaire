@@ -128,7 +128,37 @@ fmt_opt_page_size <- function(pageSize) {
   return(pageSize)
 }
 
-fmt_opt_page <- function(opt, call) {}
+
+#' Check and format the "page" option passed to `oag_set_options()`
+#'
+#' @inheritParams oag_query
+#' @param page A positive integer indicating the page to return from a query.
+#'
+#' @returns A string following OpenAIRE Graph API documentation that can be
+#' added to an API call to specify the page to return from a query. If `page` is
+#' NULL at the input, the result returned will also be NULL.
+#'
+#' @keywords internal
+
+fmt_opt_page <- function(page) {
+  call <- rlang::caller_env()
+
+  if (!is.null(page)) {
+    if (!rlang::is_scalar_integerish(page) || page < 1) {
+      cli::cli_abort(
+        "{.var page} must be a scalar positive integer.",
+        call = call
+      )
+    } else {
+      # Avoid R coercing large number to scientific notation when pasting them
+      page <- paste0("page=", format(page, scientific = FALSE))
+    }
+  } else {
+    page <- NULL
+  }
+
+  return(page)
+}
 
 
 #' Check and format the "cursor" option passed to `oag_set_options()`
