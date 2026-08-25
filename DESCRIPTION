@@ -1,13 +1,14 @@
 Package: oaire
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R interface to the openAIRE graph API
 Version: 0.0.0.9000
 Authors@R: c(
     person("Simon", "Gorin", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7462-0446"))
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: Set of functions interfacing with the OpenAIRE graph API
+    (<https://graph.openaire.eu/docs/>) to extract metadata records of
+    scholar research products (articles, data, software...).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
