@@ -1,3 +1,14 @@
+#' Get the list of available fields for sorting in the entities
+#'
+#' @inheritParams oag_query
+#'
+#' @returns A character vector with the fields on which query results for the
+#' given entity can be sorted on.
+#' @export
+#'
+#' @examples
+#' get_sorting_fields("projects")
+
 get_sorting_fields <- function(entity) {
   rlang::arg_match(entity, oag_entities())
   # Fields on which the "research-products" entity can be sorted by
