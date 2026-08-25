@@ -76,9 +76,7 @@ oag_options <- function(
 #'
 #' @keywords internal
 
-fmt_opt_sorting <- function(sortBy, entity) {
-  call <- rlang::caller_env()
-
+fmt_opt_sorting <- function(sortBy, entity, call) {
   if (!is.null(sortBy)) {
     if (!rlang::is_bare_character(sortBy) || !rlang::is_vector(sortBy)) {
       sorting_error_msg(
@@ -138,9 +136,7 @@ fmt_opt_sorting <- function(sortBy, entity) {
 #'
 #' @keywords internal
 
-fmt_opt_stats <- function(includeStats) {
-  call <- rlang::caller_env()
-
+fmt_opt_stats <- function(includeStats, call) {
   if (!is.null(includeStats)) {
     if (!rlang::is_scalar_logical(includeStats)) {
       cli::cli_abort(
@@ -172,9 +168,7 @@ fmt_opt_stats <- function(includeStats) {
 #'
 #' @keywords internal
 
-fmt_opt_page_size <- function(pageSize) {
-  call <- rlang::caller_env()
-
+fmt_opt_page_size <- function(pageSize, call) {
   if (!is.null(pageSize)) {
     if (!rlang::is_scalar_integerish(pageSize) || pageSize < 1) {
       cli::cli_abort(
@@ -205,9 +199,7 @@ fmt_opt_page_size <- function(pageSize) {
 #'
 #' @keywords internal
 
-fmt_opt_page <- function(page) {
-  call <- rlang::caller_env()
-
+fmt_opt_page <- function(page, call) {
   if (!is.null(page)) {
     if (!rlang::is_scalar_integerish(page) || page < 1) {
       cli::cli_abort(
@@ -238,9 +230,7 @@ fmt_opt_page <- function(page) {
 #'
 #' @keywords internal
 
-fmt_opt_cursor <- function(cursor) {
-  call <- rlang::caller_env()
-
+fmt_opt_cursor <- function(cursor, call) {
   if (!is.null(cursor)) {
     if (!rlang::is_scalar_logical(cursor)) {
       cli::cli_abort(
