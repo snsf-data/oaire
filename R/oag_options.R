@@ -98,7 +98,37 @@ fmt_opt_page_size <- function(opt, call) {}
 
 fmt_opt_page <- function(opt, call) {}
 
-fmt_opt_cursor <- function(opt, call) {}
+
+#' Check and format the "cursor" option passed to `oag_set_options()`
+#'
+#' @inheritParams oag_query
+#' @param cursor A scalar logical indicating whether to use cursor-based paging
+#' when querying the OpenAIRE Graph API (`TRUE`) or not (`FALSE`).
+#'
+#' @returns A string following OpenAIRE Graph API documentation that can be
+#' added to an API call to specify that cursor-based paging should be used. If
+#' `cursor` is NULL at the input, the result returned will also be NULL.
+#'
+#' @keywords internal
+
+fmt_opt_cursor <- function(cursor) {
+  call <- rlang::caller_env()
+
+  if (!is.null(cursor)) {
+    if (!rlang::is_scalar_logical(cursor)) {
+      cli::cli_abort(
+        "{.var cursor} must be a logical scalar or NULL.",
+        call = call
+      )
+    } else if (cursor) {
+      cursor <- "cursor=*"
+    } else {
+      cursor <- NULL
+    }
+  }
+
+  return(cursor)
+}
 
 #' Get the list of available fields for sorting in the entities
 #'
