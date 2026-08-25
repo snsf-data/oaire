@@ -80,21 +80,28 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
   if (!is.null(sortBy)) {
     if (!rlang::is_bare_character(sortBy) || !rlang::is_vector(sortBy)) {
       sorting_error_msg(
-        "The object passed to {.arg sortBy} must be a character vector.",
+        paste0(
+          "In the list of options, the object passed to {.arg sortBy} must be ",
+          "a character vector or NULL to use OpenAIRE Graph API's default."
+        ),
         call
       )
     }
     if (!rlang::is_named(sortBy)) {
       sorting_error_msg(
-        "The character vector passed to {.arg sortBy} must be named.",
+        paste0(
+          "In the list of options, the character vector passed to ",
+          "{.arg sortBy} must be named."
+        ),
         call
       )
     }
     if (!all(sortBy %in% c("ASC", "DESC"))) {
       sorting_error_msg(
         paste0(
-          "The character vector passed to {.arg sortBy} can only contains ",
-          "\"ASC\" (ascending) or \"DESC\" (descending) as values."
+          "In the list of options, character vector passed to {.arg sortBy} ",
+          "can only contains \"ASC\" (ascending) or \"DESC\" (descending) ",
+          "as input."
         ),
         call
       )
@@ -107,7 +114,8 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
       cli::cli_abort(
         paste0(
           "When working with the \"{entity}\" entity, only the following ",
-          "fields can be used to sort the results: {.var {sorting_fields}}."
+          "fields can be passed to the list of options to sort the results: ",
+          "{.var {sorting_fields}}."
         )
       )
     }
@@ -140,7 +148,10 @@ fmt_opt_stats <- function(includeStats, call) {
   if (!is.null(includeStats)) {
     if (!rlang::is_scalar_logical(includeStats)) {
       cli::cli_abort(
-        "{.var includeStats} must be a logical scalar or NULL.",
+        paste0(
+          "In the list of options, {.var includeStats} must be a logical ",
+          "scalar or NULL to use OpenAIRE Graph API's default."
+        ),
         call = call
       )
     } else if (includeStats) {
@@ -172,7 +183,10 @@ fmt_opt_page_size <- function(pageSize, call) {
   if (!is.null(pageSize)) {
     if (!rlang::is_scalar_integerish(pageSize) || pageSize < 1) {
       cli::cli_abort(
-        "{.var pageSize} must be a scalar positive integer.",
+        paste0(
+          "In the list of options, {.var pageSize} must be a scalar positive ",
+          "integer or NULL to use OpenAIRE Graph API's default."
+        ),
         call = call
       )
     } else if (pageSize > 100) {
@@ -203,7 +217,10 @@ fmt_opt_page <- function(page, call) {
   if (!is.null(page)) {
     if (!rlang::is_scalar_integerish(page) || page < 1) {
       cli::cli_abort(
-        "{.var page} must be a scalar positive integer.",
+        paste0(
+          "In the list of options, {.var page} must be a scalar positive ",
+          "integer or NULL to use OpenAIRE Graph API's default."
+        ),
         call = call
       )
     } else {
@@ -234,7 +251,10 @@ fmt_opt_cursor <- function(cursor, call) {
   if (!is.null(cursor)) {
     if (!rlang::is_scalar_logical(cursor)) {
       cli::cli_abort(
-        "{.var cursor} must be a logical scalar or NULL.",
+        paste0(
+          "In the list of options, {.var cursor} must be a logical scalar or ",
+          "NULL or NULL to use OpenAIRE Graph API's default."
+        ),
         call = call
       )
     } else if (cursor) {
@@ -306,7 +326,7 @@ sorting_error_msg <- function(msg, call) {
       msg,
       i = paste0(
         "Sorting can be controlled by passing a named character vector to the ",
-        "{.arg sortBy} argument in {.fn oag_set_options}."
+        "{.arg sortBy} argument in {.fn oag_options}."
       ),
       i = paste0(
         "The vector must be named using the format ",
@@ -315,7 +335,7 @@ sorting_error_msg <- function(msg, call) {
       ),
       i = paste0(
         "Here is valid example: ",
-        "{.code oag_set_options(\"datasources\", sortBy=c(relevance=\"ASC\"))}"
+        "{.code oag_options(sortBy=c(relevance=\"ASC\"))}"
       )
     ),
     call = call
