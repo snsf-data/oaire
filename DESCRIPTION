@@ -1,16 +1,20 @@
-Package: oaire
 Type: Package
-Title: What the Package Does (Title Case)
+Package: oaire
+Title: R interface to the openAIRE graph API
 Version: 0.0.0.9000
-Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
-  )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Authors@R: 
+    person("Simon", "Gorin", , "github.com.darkness667@passmail.net", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7462-0446"))
+Description: Set of functions interfacing with the OpenAIRE graph API
+    (<https://graph.openaire.eu/docs/>) to extract metadata records of
+    scholar research products (articles, data, software...).
+License: MIT + file LICENSE
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Encoding: UTF-8
+Language: en-GB
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
