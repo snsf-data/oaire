@@ -41,3 +41,34 @@ get_sorting_fields <- function(entity) {
 
   return(fields)
 }
+
+#' Compose an error message for sorting option issues with pre-formatted help
+#'
+#' @param msg A string with the message to add to the pre-formatted error
+#' message.
+#' @param call The caller environment passed to `cli::cli_abort()`.
+#'
+#' @returns Nothin, use for side-effect only.
+#' @keywords internal
+
+sorting_error_msg <- function(msg, call) {
+  cli::cli_abort(
+    c(
+      msg,
+      i = paste0(
+        "Sorting can be controlled by passing a named character vector to the ",
+        "{.arg sortBy} argument in {.fn oag_set_options}."
+      ),
+      i = paste0(
+        "The vector must be named using the format ",
+        "{.code fieldname = \"sortDirection\"}, where {.arg sortDirection} ",
+        "is \"ASC\" (ascending) or \"DESC\" (descending)."
+      ),
+      i = paste0(
+        "Here is valid example: ",
+        "{.code oag_set_options(\"datasources\", sortBy=c(relevance=\"ASC\"))}"
+      )
+    ),
+    call = call
+  )
+}
