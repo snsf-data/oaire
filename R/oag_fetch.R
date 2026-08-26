@@ -165,3 +165,52 @@ oag_query <- function(entity, ..., options = NULL) {
 
   structure(query, class = c("oag_query", "character"))
 }
+
+#' Perform a request and fetch the response from OpenAIRE Graph API
+#'
+#' Based on an `oag_query` object or a string passed to the function, it
+#' performs a request to the OpenAIRE Graph API and fetch the response back.
+#' Note that the function use throttling to make sure that the performed
+#' requests never exceed the rate limit (60 per hour for unauthenticated
+#' requests -- authenticated request is not implemented yet). To see the
+#' remaining number of requests and the time to wait when the rate has been
+#' exceeded, run `httr2::throttle_status()` and look for the row where `realm`
+#' is "api.openaire.eu".
+#'
+#' @param query An `oag_query` object formatted with `oag_query()` or a bare
+#' string with a valid query to the API.
+#'
+#' @returns The results from the performed query in a JSON format.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Create a query then pipe it to `oag_fetch()` to get the results
+#' rp_data <- oag_query(
+#'   "research-products",
+#'   publicationYear = "2020",
+#'   options = oag_options(sortBy = c(relevance = "ASC"))
+#' ) |>
+#'   oag_fetch()
+#' }
+
+oag_fetch <- function(query) {
+  if (!rlang::is_bare_string(query) && !inherits(query, "oag_query")) {
+    cli::cli_abort(
+      "The query must be an object of class `oag_query` or a bare string."
+    )
+  }
+
+  # Prepare the request specifying that we will read the results a JSON
+  req <- httr2::request(query) |>
+    httr2::req_headers(Accept = "application/json") |>
+    httr2::req_throttle(capacity = 60, fill_time_s = 3600)
+
+  # Perform the request will catching the error message in case the request did
+  # not perform as expected.
+  res <- req |>
+    httr2::req_error(body = \(x) httr2::resp_body_json(x)$message) |>
+    httr2::req_perform(error_call = rlang::caller_env(0))
+
+  res
+}
