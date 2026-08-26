@@ -52,21 +52,28 @@ get_oag_api_url <- function(entity) {
 #' \url{https://graph.openaire.eu/docs/apis/graph-api/}). The function
 #' interprets additional (named) argument(s) passed to the `...` argument as
 #' filter(s). The filter(s) must be named with the name of the field to filter,
-#' as described in the OpenAIRE Graph API.
+#' as described in the OpenAIRE Graph API. Options can be specified with
+#' `opa_options()`.
 #'
-#' @param entity A string with the entity to query. It must match an entity
-#' returned by `oag_entities()`.
+#' @inheritParams get_oag_api_url
 #' @param ... Filter(s) to use when composing the query. The filter(s) must be
 #' named and their value must be a string. The name of the filter must be a
 #' valid filter referenced in the OpenAIRE Graph API documentation. For example,
 #' `publicationYear = "2020"` can be used to filter publication from 2020 when
 #' working with "research-products" entity.
+#' @param options A set of options (created with `opa_options()`) used to
+#' compose the query. Options allow to control sorting, paging, etc. See
+#' `?opa_options()` for more details.
 #'
 #' @returns A string with the query URL.
 #' @export
 #'
 #' @examples
-#' oag_query("research-products", publicationYear = "2020")
+#' oag_query(
+#'   "research-products",
+#'   publicationYear = "2020",
+#'   options = oag_options(sortBy = c(relevance = "ASC"))
+#' )
 
 oag_query <- function(entity, ..., options = NULL) {
   # Only entities returned by `oag_entities()` are accepted
@@ -138,19 +145,23 @@ oag_query <- function(entity, ..., options = NULL) {
     query_filters <- paste0(names(filters), "=", unlist(filters))
     # Combine all filters into a single string using the ampersand as separator
     collapsed_filters <- paste0(query_filters, collapse = "&")
-    # Compose the query by adding the filters and the options to the entity API
-    # URL.
-    query <- paste0(
-      get_oag_api_url(entity),
-      "?",
-      collapsed_filters,
-      "&",
-      query_filters
-    )
   } else {
-    # The query is simply the entity base URL + the options
-    query <- paste0(get_oag_api_url(entity), "?", options)
+    # If not filter was passed to the function, `collapsed_filters` must be NULL
+    collapsed_filters <- NULL
   }
 
-  return(query)
+  # Get the API URL of the entity
+  query_entity <- get_oag_api_url(entity)
+  # Combine the filters and options
+  query_params <- paste0(c(collapsed_filters, options), collapse = "&")
+  # In case `query_params` is empty, the final query is `query_entity`. If not,
+  # then we concatenate `query_entity` and `query_params`, separated by a
+  # question mark.
+  if (!nzchar(query_params)) {
+    query <- query_entity
+  } else {
+    query <- paste0(query_entity, "?", query_params)
+  }
+
+  query
 }
