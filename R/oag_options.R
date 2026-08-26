@@ -140,10 +140,8 @@ oag_set_options <- function(
     collapse = "&"
   )
 
-  # Set the class of the option string
-  options <- structure(option_str, class = c("oag_url_options", "character"))
-
-  return(options)
+  # Set the class of the option string and return it
+  structure(option_str, class = c("oag_url_options", "character"))
 }
 
 #' Check and format sorting option passed to `oag_set_options()`
@@ -158,6 +156,8 @@ oag_set_options <- function(
 #' @keywords internal
 
 fmt_opt_sorting <- function(sortBy, entity, call) {
+  sorting_formatted <- NULL
+
   if (!is.null(sortBy)) {
     if (!rlang::is_bare_character(sortBy) || !rlang::is_vector(sortBy)) {
       sorting_error_msg(
@@ -206,11 +206,9 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
     # Combine the sorting options together using a coma separator (if only one
     # sorting option, nothing will be collpase and will stay as is).
     sorting_formatted <- paste0(sorting_formatted, collapse = ", ")
-
-    return(sorting_formatted)
-  } else {
-    return(NULL)
   }
+
+  sorting_formatted
 }
 
 #' Check and format the "includeStats" option passed to `oag_set_options()`
@@ -243,7 +241,7 @@ fmt_opt_stats <- function(includeStats, call) {
     includeStats <- NULL
   }
 
-  return(includeStats)
+  includeStats
 }
 
 
@@ -277,7 +275,7 @@ fmt_opt_page_size <- function(pageSize, call) {
     pageSize <- NULL
   }
 
-  return(pageSize)
+  pageSize
 }
 
 
@@ -310,7 +308,7 @@ fmt_opt_page <- function(page, call) {
     page <- NULL
   }
 
-  return(page)
+  page
 }
 
 
@@ -342,7 +340,7 @@ fmt_opt_cursor <- function(cursor, call) {
     }
   }
 
-  return(cursor)
+  cursor
 }
 
 #' Get the list of available fields for sorting in the entities
@@ -377,7 +375,7 @@ get_sorting_fields <- function(entity) {
   # Fields on which the "persons" entity can be sorted by
   pers <- "relevance"
 
-  fields <- switch(
+  switch(
     entity,
     "research-products" = rp,
     organizations = org,
@@ -385,8 +383,6 @@ get_sorting_fields <- function(entity) {
     projects = proj,
     persons = pers
   )
-
-  return(fields)
 }
 
 #' Compose an error message for sorting option issues with pre-formatted help

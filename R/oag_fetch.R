@@ -42,18 +42,8 @@ get_oag_api_url <- function(entity) {
   # Base OpenAIRE Graph API URL
   api_url <- "https://api.openaire.eu/graph/v3"
 
-  type_url <- switch(
-    entity,
-    products = "research-products",
-    organisations = "organizations",
-    sources = "datasources",
-    projects = "projects",
-    persons = "persons"
-  )
-
-  url <- file.path(api_url, type_url)
-
-  return(url)
+  # Building and returning the entity API URL
+  file.path(api_url, entity)
 }
 
 #' Compose a query to the OpenAIRE Graph API
