@@ -1,4 +1,38 @@
-#' Concatenate  string arguments with an "AND" or "OR" as separator
+#' Concatenate strings with a logical operator (AND-OR-NOT)
+#'
+#' In the OpenAIRE Graph API, logical operators can be used in filters. These
+#' functions allows concatenating series of strings with "AND"/"OR" operator, or
+#' to negate a string with the "NOT" operator, following the API documentation.
+#'
+#' @param ... The string(s) to negate or to concatenate with "AND"/"OR". All
+#' values passed to the `...` argument must be bare strings. In `concat_not()`,
+#' only a single string can be passed to `...`.
+#'
+#' @returns A string of class `oag_str`.
+#' @export
+#'
+#' @examples
+#' concat_and("science", "history")
+#' concat_or("biology", "humanities", "geology")
+#' concat_not("model")
+#'
+#' # Combining different "concat" functions
+#' concat_and("science", "history", concat_not("model"))
+#' concat_and(concat_or("biology", "humanities"), concat_or("history", "geology"))
+#'
+#' # In a query context
+#' oag_query("datasources", search = concat_or("biology", "humanities", "geology"))
+
+concat_and <- function(...) {
+  concat_and_or(..., operator = "AND")
+}
+
+#' @rdname concat_and
+concat_or <- function(...) {
+  concat_and_or(..., operator = "OR")
+}
+
+#' Concatenate string arguments with an "AND" or "OR" as separator
 #'
 #' In the OpenAIRE Graph API, logical operators can be used in filters. This
 #' function allows concatenating series of strings with the logical operators
