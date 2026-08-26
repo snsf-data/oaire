@@ -73,7 +73,7 @@ concat_not <- function(...) {
 #' function allows concatenating series of strings with the logical operators
 #' "AND"/"OR", following the API documentation.
 #'
-#' @inheritParams ... Strings to concatenate to a single string.
+#' @inheritParams concat_and
 #' @param operator A string indicating the logical operator to use to
 #' concatenate the arguments passed to `...`. Only "AND" and "OR" (case
 #' sensitive) are accepted.
