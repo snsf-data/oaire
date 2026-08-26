@@ -14,7 +14,8 @@ Depends:
 Imports: 
     cli,
     httr2,
-    rlang
+    rlang,
+    utils
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
