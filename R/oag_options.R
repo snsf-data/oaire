@@ -65,10 +65,8 @@ oag_options <- function(
 
 #' Check and format sorting option passed to `oag_set_options()`
 #'
-#' @inheritParams oag_query
-#' @param sortBy A named character vector with the fields on which to sort the
-#' results from the queried entity. Names must be valid sorting fields and
-#' values can only be "ASC" (ascending) or "DESC" (descending).
+#' @inheritParams oag_options
+#' @inheritParams sorting_error_msg
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
 #' added to an API call to control sorting. If `sortBy` is NULL at the input,
@@ -134,9 +132,8 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
 
 #' Check and format the "includeStats" option passed to `oag_set_options()`
 #'
-#' @inheritParams oag_query
-#' @param includeStats A scalar logical indicating whether statistics about the
-#' query should included (`TRUE`) or not (`FALSE`).
+#' @inheritParams oag_options
+#' @inheritParams sorting_error_msg
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
 #' added to an API call to control the inclusion of query statistics. If
@@ -169,9 +166,8 @@ fmt_opt_stats <- function(includeStats, call) {
 
 #' Check and format the "pageSize" option passed to `oag_set_options()`
 #'
-#' @inheritParams oag_query
-#' @param pageSize A positive integer indicating the page size of a query. Page
-#' size corresponds to the number of records returned.
+#' @inheritParams oag_options
+#' @inheritParams sorting_error_msg
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
 #' added to an API call to specify the page size of a query. If `pageSize` is
@@ -204,8 +200,8 @@ fmt_opt_page_size <- function(pageSize, call) {
 
 #' Check and format the "page" option passed to `oag_set_options()`
 #'
-#' @inheritParams oag_query
-#' @param page A positive integer indicating the page to return from a query.
+#' @inheritParams oag_options
+#' @inheritParams sorting_error_msg
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
 #' added to an API call to specify the page to return from a query. If `page` is
@@ -237,9 +233,8 @@ fmt_opt_page <- function(page, call) {
 
 #' Check and format the "cursor" option passed to `oag_set_options()`
 #'
-#' @inheritParams oag_query
-#' @param cursor A scalar logical indicating whether to use cursor-based paging
-#' when querying the OpenAIRE Graph API (`TRUE`) or not (`FALSE`).
+#' @inheritParams oag_options
+#' @inheritParams sorting_error_msg
 #'
 #' @returns A string following OpenAIRE Graph API documentation that can be
 #' added to an API call to specify that cursor-based paging should be used. If
