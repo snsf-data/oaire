@@ -312,10 +312,10 @@ get_sorting_fields <- function(entity) {
 #' message.
 #' @param call The caller environment passed to `cli::cli_abort()`.
 #'
-#' @returns Nothin, use for side-effect only.
-#' @keywords internal
+#' @returns Nothing, use for side-effect only.
+#' @export
 
-sorting_error_msg <- function(msg, call) {
+sorting_error_msg <- function(msg, call = rlang::caller_env(0)) {
   cli::cli_abort(
     c(
       msg,
