@@ -32,6 +32,37 @@ concat_or <- function(...) {
   concat_and_or(..., operator = "OR")
 }
 
+#' @rdname concat_and
+concat_not <- function(...) {
+  args <- rlang::dots_list(...)
+  # Check that no more than one argument have been passed to the function
+  if (length(args) > 1) {
+    cli::cli_abort(
+      c(
+        "No more that 1 argument can be passed to the function.",
+        i = "You passed {length(args)} argument{?s}."
+      )
+    )
+  }
+
+  # Now that arguments is of length one, take it out of the list
+  str <- args[[1]]
+
+  if (!rlang::is_bare_string(str) && !inherits(str, "oag_str")) {
+    cli::cli_abort("The argument passed to the function must be a bare string.")
+  }
+  # Surround the string with double quotes if not an `oag_str` object
+  if (!inherits(str, "oag_str")) {
+    str <- paste0("\"", str, "\"")
+  }
+
+  # Negate the string
+  str_not <- paste0("NOT ", str)
+
+  # Set the class of the string and return it
+  structure(str_not, class = c("oag_str", "character"))
+}
+
 #' Concatenate string arguments with an "AND" or "OR" as separator
 #'
 #' In the OpenAIRE Graph API, logical operators can be used in filters. This
