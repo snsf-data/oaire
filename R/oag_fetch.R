@@ -163,5 +163,5 @@ oag_query <- function(entity, ..., options = NULL) {
     query <- paste0(query_entity, "?", query_params)
   }
 
-  query
+  structure(query, class = c("oag_query", "character"))
 }
