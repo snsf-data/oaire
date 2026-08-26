@@ -209,6 +209,7 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
     # Combine the sorting options together using a coma separator (if only one
     # sorting option, nothing will be collpase and will stay as is).
     sorting_formatted <- paste0(sorting_formatted, collapse = ", ")
+    sorting_formatted <- paste0("sortBy=", sorting_formatted)
   }
 
   sorting_formatted
