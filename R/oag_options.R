@@ -237,8 +237,6 @@ fmt_opt_stats <- function(includeStats, call) {
     } else {
       includeStats <- "includeStats=false"
     }
-  } else {
-    includeStats <- NULL
   }
 
   includeStats
@@ -271,8 +269,6 @@ fmt_opt_page_size <- function(pageSize, call) {
     } else {
       pageSize <- paste0("pageSize=", pageSize)
     }
-  } else {
-    pageSize <- NULL
   }
 
   pageSize
@@ -304,8 +300,6 @@ fmt_opt_page <- function(page, call) {
       # Avoid R coercing large number to scientific notation when pasting them
       page <- paste0("page=", format(page, scientific = FALSE))
     }
-  } else {
-    page <- NULL
   }
 
   page
@@ -335,8 +329,6 @@ fmt_opt_cursor <- function(cursor, call) {
       )
     } else if (cursor) {
       cursor <- "cursor=*"
-    } else {
-      cursor <- NULL
     }
   }
 
