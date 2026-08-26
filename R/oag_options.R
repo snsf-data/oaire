@@ -63,6 +63,89 @@ oag_options <- function(
   structure(options, class = c("oag_options", "character"))
 }
 
+#' Check and format all options from an object of class `oag_options`
+#'
+#' @inheritParams oag_options
+#' @inheritParams get_oag_api_url
+#'
+#' @returns A string with options requirements formatted according to the
+#' OpenAIRE Graph API's documentation.
+#' @keywords internal
+
+oag_set_options <- function(
+  entity,
+  sortBy = NULL,
+  includeStats = NULL,
+  pageSize = NULL,
+  page = NULL,
+  cursor = NULL
+) {
+  # Get the environment of the calling function to allow associating errors
+  # with the calling function.
+  call <- rlang::caller_env()
+  # Only entities returned by `oag_entities()` are accepted
+  entity <- rlang::arg_match(entity, oag_entities())
+
+  # Check and format all the options included in the function
+  sortBy_str <- fmt_opt_sorting(sortBy, entity, call)
+  includeStats_str <- fmt_opt_stats(includeStats, call)
+  pageSize_str <- fmt_opt_page_size(pageSize, call)
+  page_str <- fmt_opt_page(page, call)
+  cursor_str <- fmt_opt_cursor(cursor, call)
+
+  # Check that offset- and cursor-based paging having not been both set
+  if (!is.null(page) && (!is.null(cursor) && cursor)) {
+    cli::cli_abort(
+      c(
+        "Offset- and cursor-based paging cannot be used simultaneously.",
+        i = paste0(
+          "To query with offset-based paging, set {.code page = <n>} in ",
+          "{.fn oag_options} (where `<n>` is the page number) and keep the ",
+          "the {.arg page} argument as NULL (default)."
+        ),
+        i = paste0(
+          "To query with cursor-based paging, set {.code cursor = TRUE} in ",
+          "{.fn oag_options} and keep the {.arg page} argument as NULL ",
+          "(default)."
+        )
+      ),
+      call = call
+    )
+  }
+
+  # Check before sending the query if the number of records requested is not
+  # to big when using offset-based paging.
+  if (!is.null(page) && !is.null(pageSize) && (page * pageSize > 10000)) {
+    cli::cli_abort(
+      c(
+        paste0(
+          "Offset-based paging can be used to retrieve up to 10,000 records ",
+          "only."
+        ),
+        i = "Consider using cursor-based paging or reducing the query size.",
+        i = paste0(
+          "Your query contains ",
+          "{prettyNum(page*pageSize, scientific = FALSE, big.mark = ',')} ",
+          "records ({.arg page} * {.arg pageSize})."
+        )
+      ),
+      call = call
+    )
+  }
+
+  # Combine all the options together in a single string using ampersand as
+  # separator.
+  option_str <- paste0(
+    c(sortBy_str, includeStats_str, pageSize_str, page_str, cursor_str),
+    collapse = "&"
+  )
+
+  # Set the class of the option string
+  options <- structure(option_str, class = c("oag_url_options", "character"))
+
+  return(options)
+}
+
 #' Check and format sorting option passed to `oag_set_options()`
 #'
 #' @inheritParams oag_options
