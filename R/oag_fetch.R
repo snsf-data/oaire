@@ -74,6 +74,27 @@ oag_query <- function(entity, ..., options = NULL) {
   # Extract the filters passed as additional arguments
   filters <- rlang::dots_list(...)
 
+  if (is.null(options)) {
+    options <- oag_set_options(entity)
+  } else if (!inherits(options, "oag_options")) {
+    # Check the options were set with `oag_set_options()` to make sure they have
+    # the right format.
+    cli::cli_abort(
+      c(
+        "Options passed to a query must be of class {.var oag_options}.",
+        i = "Use {.fn oag_options} to create a valid `options` object."
+      )
+    )
+  } else {
+    options <- oag_set_options(
+      entity = entity,
+      sortBy = options[["sortBy"]],
+      includeStats = options[["includeStats"]],
+      pageSize = options[["pageSize"]],
+      page = options[["page"]],
+      cursor = options[["cursor"]]
+    )
+  }
 
   # If the number of filters is greater than zero, they are checked and
   # formatted before adding them to the query.
