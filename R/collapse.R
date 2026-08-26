@@ -44,6 +44,7 @@ concat_and_or <- function(..., operator) {
     )
   }
 
+  # Surround bare strings (but not `oag_str` type of strings) with double quotes
   args_as_vec <- unlist(
     lapply(
       args,
@@ -51,7 +52,9 @@ concat_and_or <- function(..., operator) {
     )
   )
 
+  # Concatenate the input with the selected operator
   args_str <- paste0("(", paste0(args_as_vec, collapse = operator), ")")
 
+  # Set the class of and return the concatenated string
   structure(args_str, class = c("oag_str", "character"))
 }
