@@ -68,7 +68,7 @@ get_oag_api_url <- function(entity) {
 #' @examples
 #' oag_query("research-products", publicationYear = "2020")
 
-oag_query <- function(entity, ...) {
+oag_query <- function(entity, ..., options = NULL) {
   # Only entities returned by `oag_entities()` are accepted
   entity <- rlang::arg_match(entity, oag_entities())
   # Extract the filters passed as additional arguments
