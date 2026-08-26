@@ -135,7 +135,7 @@ oag_query <- function(entity, ..., options = NULL) {
     # Compose the query by adding the filters and the options to the entity API
     # URL.
     query <- paste0(
-      get_api_url(entity),
+      get_oag_api_url(entity),
       "?",
       collapsed_filters,
       "&",
@@ -143,7 +143,7 @@ oag_query <- function(entity, ..., options = NULL) {
     )
   } else {
     # The query is simply the entity base URL + the options
-    query <- paste0(get_api_url(entity), "?", options)
+    query <- paste0(get_oag_api_url(entity), "?", options)
   }
 
   return(query)
