@@ -29,11 +29,11 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
   # `entity` arg is missing
   expect_error(oag_set_options(), "`entity`")
   # `entity` arg does not exist
-  expect_error(oag_set_options(entity = "aaa"), "`entity` must be one of ")
+  expect_error(oag_set_options(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
   # `entity` is mispelled but partially match
   expect_error(
     oag_set_options(entity = "datasource"),
-    "`entity` must be one of "
+    "`entity`.+must.+be.+one.+of.+"
   )
 
   # `sortBy` arg is not a character vector or NULL
