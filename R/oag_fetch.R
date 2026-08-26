@@ -113,17 +113,23 @@ oag_query <- function(entity, ..., options = NULL) {
     }
 
     # Are values in filters a string
-    is_filter_val_char <- mapply(rlang::is_bare_string, filters)
+    is_filter_char <- mapply(rlang::is_bare_string, filters)
+    is_filter_oag_str <- mapply(\(x) inherits(x, "oag_str"), filters)
 
-    # Check that values in filters are a string
-    if (!all(is_filter_val_char)) {
+    # Check that values in filters are either a string or of class `oag_str`
+    if (!all(is_filter_char | is_filter_oag_str)) {
       cli::cli_abort(
         c(
           "Values assigned to filters must be a string.",
           x = paste0(
-            "{.var {names(filters[!is_filter_val_char])}} ",
+            "{.var {names(filters[!is_filter_char & !is_filter_oag_str])}} ",
             "{?is/are} not a string"
+          ),
+          i = paste0(
+            "Multiple values combined with AND/OR/NOT logical operators can ",
+            "be constructed with the {.fn concat_*} functions."
           )
+        )
       )
     }
 
