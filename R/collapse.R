@@ -13,9 +13,24 @@
 #' @keywords internal
 
 concat_and_or <- function(..., operator) {
+  call <- rlang::caller_env()
   args <- rlang::dots_list(...)
   operator <- rlang::arg_match(operator, c("AND", "OR"))
   operator <- paste0(" ", operator, " ")
+
+  # Check that additional arguments are only string
+  is_input_bare_string <- mapply(rlang::is_bare_string, args)
+  is_input_oag_str <- mapply(\(x) inherits(x, "oag_str"), args)
+
+  if (!all(is_input_bare_string | is_input_oag_str)) {
+    cli::cli_abort(
+      c(
+        "Arguments must strings or of class `oag_str`.",
+        x = "{.arg {args[!is_input_bare_string]}} {?is/are} not string{?s}."
+      ),
+      call = call
+    )
+  }
 
   args_as_vec <- unlist(
     lapply(
