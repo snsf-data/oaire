@@ -184,7 +184,7 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
       sorting_error_msg(
         paste0(
           "In the list of options, character vector passed to {.arg sortBy} ",
-          "can only contains \"ASC\" (ascending) or \"DESC\" (descending) ",
+          "can only contain \"ASC\" (ascending) or \"DESC\" (descending) ",
           "as input."
         ),
         call
