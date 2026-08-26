@@ -32,6 +32,18 @@ concat_and_or <- function(..., operator) {
     )
   }
 
+  # Check that in the input combined to a single character vector contains at
+  # least two elements. An operator cannot be added to a single element.
+  if (length(args) < 2) {
+    rlang::abort(
+      paste0(
+        "At least two strings are required to concatenate them with a logical ",
+        "operator."
+      ),
+      call = call
+    )
+  }
+
   args_as_vec <- unlist(
     lapply(
       args,
