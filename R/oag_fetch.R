@@ -210,7 +210,8 @@ oag_fetch <- function(query) {
   # not perform as expected.
   res <- req |>
     httr2::req_error(body = \(x) httr2::resp_body_json(x)$message) |>
-    httr2::req_perform(error_call = rlang::caller_env(0))
+    httr2::req_perform(error_call = rlang::caller_env(0)) |>
+    httr2::resp_body_json()
 
   res
 }
