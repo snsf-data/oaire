@@ -83,8 +83,8 @@ oag_query <- function(entity, ..., options = NULL) {
 
   if (!is.null(options)) {
     if (!inherits(options, "oag_options")) {
-      # Check the options were set with `oag_set_options()` to make sure they have
-      # the right format.
+      # Check the options were set with `oag_set_options()` to make sure they
+      # have the right format.
       cli::cli_abort(
         c(
           "Options passed to a query must be of class {.var oag_options}.",
