@@ -28,11 +28,15 @@ concat_and <- function(...) {
 }
 
 #' @rdname concat_and
+#' @export
+
 concat_or <- function(...) {
   concat_and_or(..., operator = "OR")
 }
 
 #' @rdname concat_and
+#' @export
+
 concat_not <- function(...) {
   args <- rlang::dots_list(...)
   # Check that no more than one argument have been passed to the function
