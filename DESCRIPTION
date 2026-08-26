@@ -9,6 +9,12 @@ Description: Set of functions interfacing with the OpenAIRE graph API
     (<https://graph.openaire.eu/docs/>) to extract metadata records of
     scholar research products (articles, data, software...).
 License: MIT + file LICENSE
+Depends: 
+    R (>= 4.1.0)
+Imports: 
+    cli,
+    httr2,
+    rlang
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
@@ -18,7 +24,3 @@ Language: en-GB
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Imports: 
-    cli,
-    httr2,
-    rlang
