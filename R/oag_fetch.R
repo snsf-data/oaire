@@ -202,7 +202,7 @@ oag_fetch <- function(query) {
   }
 
   # Prepare the request specifying that we will read the results a JSON
-  req <- httr2::request(query) |>
+  req <- httr2::request(utils::URLencode(query)) |>
     httr2::req_headers(Accept = "application/json") |>
     httr2::req_throttle(capacity = 60, fill_time_s = 3600)
 
