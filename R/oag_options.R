@@ -59,8 +59,11 @@ oag_options <- function(
     page = page,
     cursor = cursor
   )
-
-  structure(options, class = c("oag_options", "character"))
+  if (all(mapply(is.null, options))) {
+    invisible()
+  } else {
+    structure(options, class = c("oag_options", "character"))
+  }
 }
 
 #' Check and format all options from an object of class `oag_options`
