@@ -46,11 +46,11 @@
 #' )
 
 oag_options <- function(
-    sortBy = NULL,
-    includeStats = NULL,
-    pageSize = NULL,
-    page = NULL,
-    cursor = NULL
+  sortBy = NULL,
+  includeStats = NULL,
+  pageSize = NULL,
+  page = NULL,
+  cursor = NULL
 ) {
   options <- list(
     sortBy = sortBy,
