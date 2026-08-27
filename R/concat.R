@@ -104,8 +104,11 @@ concat_and_or <- function(..., operator) {
   if (!all(is_input_bare_string | is_input_oag_str)) {
     cli::cli_abort(
       c(
-        "Arguments must strings or of class `oag_str`.",
-        x = "{.arg {args[!is_input_bare_string]}} {?is/are} not string{?s}."
+        "Arguments must be strings or of class `oag_str`.",
+        i = paste0(
+          "Alternatively, you can pass a single character vector to be ",
+          "concatenated."
+        )
       ),
       call = call
     )
