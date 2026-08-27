@@ -87,6 +87,16 @@ concat_and_or <- function(..., operator) {
   operator <- rlang::arg_match(operator, c("AND", "OR"))
   operator <- paste0(" ", operator, " ")
 
+  # Check if the arguments passed to the function are in fact a single character
+  # vector. In that case, the argument is accepted and continue.
+  if (
+    length(args) == 1 &&
+    rlang::is_bare_character(args[[1]]) &&
+    rlang::is_bare_vector(args[[1]])
+  ) {
+    args <- args[[1]]
+  }
+
   # Check that additional arguments are only string
   is_input_bare_string <- mapply(rlang::is_bare_string, args)
   is_input_oag_str <- mapply(\(x) inherits(x, "oag_str"), args)
