@@ -4,15 +4,15 @@
 \alias{fmt_opt_page}
 \title{Check and format the "page" option passed to \code{oag_set_options()}}
 \usage{
-fmt_opt_page(page, call)
+fmt_opt_page(page, .call)
 }
 \arguments{
-\item{page}{A positive integer indicating the page the query should return.
-Using this argument trigger an offset-based paging query. Note that the
-\code{page} (offset-based paging) and \code{cursor} (cursor-based paging) arguments
-cannot be used simultaneously.}
+\item{page}{A positive integer indicating the specific page the query should
+return. When \code{page} is kept NULL, this triggers an offset-based paging query.
+Note that the \code{page} (offset-based paging) and \code{cursor} (cursor-based paging)
+arguments cannot be used simultaneously.}
 
-\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
+\item{.call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string following OpenAIRE Graph API documentation that can be

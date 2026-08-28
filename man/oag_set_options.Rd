@@ -10,7 +10,9 @@ oag_set_options(
   includeStats = NULL,
   pageSize = NULL,
   page = NULL,
-  cursor = NULL
+  cursor = NULL,
+  is_cursor_next = FALSE,
+  .call = rlang::caller_env()
 )
 }
 \arguments{
@@ -30,15 +32,19 @@ query should be included (\code{TRUE}) or not (\code{FALSE}) in the results.}
 a query should return. The OpenAIRE Graph API has a limit of 100 records per
 page.}
 
-\item{page}{A positive integer indicating the page the query should return.
-Using this argument trigger an offset-based paging query. Note that the
-\code{page} (offset-based paging) and \code{cursor} (cursor-based paging) arguments
-cannot be used simultaneously.}
+\item{page}{A positive integer indicating the specific page the query should
+return. When \code{page} is kept NULL, this triggers an offset-based paging query.
+Note that the \code{page} (offset-based paging) and \code{cursor} (cursor-based paging)
+arguments cannot be used simultaneously.}
 
 \item{cursor}{A logical indicating whether to use cursor-based paging when
 querying the OpenAIRE Graph API (\code{TRUE}) or not (\code{FALSE}). Note that the
 \code{cursor} (cursor-based paging) and \code{page} (offset-based paging) arguments
 cannot be used simultaneously.}
+
+\item{is_cursor_next}{\strong{Do not use this argument}. It is used internally by
+\code{oag_fetch()} to indicate whether the \code{cursor} argument must be interpreted
+as the method to use ("cursor-based paging") or as the next cursor.}
 }
 \value{
 A string with options requirements formatted according to the

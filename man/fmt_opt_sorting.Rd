@@ -4,7 +4,7 @@
 \alias{fmt_opt_sorting}
 \title{Check and format sorting option passed to \code{oag_set_options()}}
 \usage{
-fmt_opt_sorting(sortBy, entity, call)
+fmt_opt_sorting(sortBy, entity, .call)
 }
 \arguments{
 \item{sortBy}{A named character vector with the field(s) on which to sort the
@@ -13,7 +13,7 @@ results. Names must be valid sorting fields, only accepting the values "ASC"
 results can be sorted vary across entities. To get the list of sorting fields
 for a given entity use \code{get_sorting_fields()}.}
 
-\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
+\item{.call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string following OpenAIRE Graph API documentation that can be

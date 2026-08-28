@@ -9,7 +9,8 @@ oag_options(
   includeStats = NULL,
   pageSize = NULL,
   page = NULL,
-  cursor = NULL
+  cursor = NULL,
+  is_cursor_next = FALSE
 )
 }
 \arguments{
@@ -26,15 +27,19 @@ query should be included (\code{TRUE}) or not (\code{FALSE}) in the results.}
 a query should return. The OpenAIRE Graph API has a limit of 100 records per
 page.}
 
-\item{page}{A positive integer indicating the page the query should return.
-Using this argument trigger an offset-based paging query. Note that the
-\code{page} (offset-based paging) and \code{cursor} (cursor-based paging) arguments
-cannot be used simultaneously.}
+\item{page}{A positive integer indicating the specific page the query should
+return. When \code{page} is kept NULL, this triggers an offset-based paging query.
+Note that the \code{page} (offset-based paging) and \code{cursor} (cursor-based paging)
+arguments cannot be used simultaneously.}
 
 \item{cursor}{A logical indicating whether to use cursor-based paging when
 querying the OpenAIRE Graph API (\code{TRUE}) or not (\code{FALSE}). Note that the
 \code{cursor} (cursor-based paging) and \code{page} (offset-based paging) arguments
 cannot be used simultaneously.}
+
+\item{is_cursor_next}{\strong{Do not use this argument}. It is used internally by
+\code{oag_fetch()} to indicate whether the \code{cursor} argument must be interpreted
+as the method to use ("cursor-based paging") or as the next cursor.}
 }
 \value{
 A list of class \code{oag_options} with the options requirements to pass
@@ -43,8 +48,8 @@ been checked yet.
 }
 \description{
 This function collects the options requirements to use when building a query.
-The validity of the options are collected without any checks. The checks will
-take place later, after being passed to \code{oag_query()}.
+The options are collected without any checks regarding their validity. The
+checks will take place later, after being passed to \code{oag_query()}.
 }
 \examples{
 # Example of query options with offset-based paging with sorting

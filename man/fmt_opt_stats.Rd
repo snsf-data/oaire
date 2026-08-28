@@ -4,13 +4,13 @@
 \alias{fmt_opt_stats}
 \title{Check and format the "includeStats" option passed to \code{oag_set_options()}}
 \usage{
-fmt_opt_stats(includeStats, call)
+fmt_opt_stats(includeStats, .call)
 }
 \arguments{
 \item{includeStats}{A scalar logical indicating whether statistics about the
 query should be included (\code{TRUE}) or not (\code{FALSE}) in the results.}
 
-\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
+\item{.call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string following OpenAIRE Graph API documentation that can be
