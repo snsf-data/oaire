@@ -99,7 +99,8 @@ oag_query <- function(entity, ..., options = NULL) {
         pageSize = options[["pageSize"]],
         page = options[["page"]],
         cursor = options[["cursor"]],
-        is_cursor_next = options[["is_cursor_next"]]
+        is_cursor_next = options[["is_cursor_next"]],
+        .call = .call
       )
     }
   }
@@ -116,7 +117,8 @@ oag_query <- function(entity, ..., options = NULL) {
         c(
           "All filters must be named following the scheme `field = value`.",
           x = "{.var {filters[!is_filter_named]}} {?is/are} not named."
-        )
+        ),
+        call = .call
       )
     }
 
@@ -137,7 +139,8 @@ oag_query <- function(entity, ..., options = NULL) {
             "Multiple values combined with AND/OR/NOT logical operators can ",
             "be constructed with the {.fn concat_*} functions."
           )
-        )
+        ),
+        call = .call
       )
     }
 
