@@ -30,9 +30,18 @@ test_that("oag_api_url() is successful when entity is valid", {
 
 test_that("oag_query() returns an error for incorrectly formatted options", {
   # `entity` arg is missing
-  expect_error(oag_query(), "`entity`")
-  # `entity` arg does not exist
+  expect_error(oag_query(), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(1), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(c()), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(list()), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(list("a")), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(TRUE), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_query(NULL), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(NA), "`entity`.+must.+be.+a.+character.+vector")
+
+  # Value passed to `entity` arg is not a valid entity
   expect_error(oag_query(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
+  expect_error(oag_query(entity = c("a", "b"), "`entity`.+must.+be.+one.+of.+"))
   # `entity` is mispelled but partially match
   expect_error(
     oag_query(entity = "datasource"),
@@ -695,18 +704,23 @@ test_that("oag_query() is successful when filters are named argument or `oag_st`
 ## Errors ----
 
 test_that("oag_fetch() is successful when query is correctly formatted", {
-  # Query has the wrong format
+  # `entity` arg is missing
+  expect_error(oag_fetch(), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(1), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(c()), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(list()), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(list("a")), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(TRUE), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(NULL), "`entity`.+must.+be.+a.+character.+vector")
+  expect_error(oag_fetch(NA), "`entity`.+must.+be.+a.+character.+vector")
+
+  # Value passed to `entity` arg is not a valid entity
+  expect_error(oag_fetch(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
+  expect_error(oag_fetch(entity = c("a", "b"), "`entity`.+must.+be.+one.+of.+"))
+  # `entity` is mispelled but partially match
   expect_error(
-    oag_fetch(1),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(c("a", "a")),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(c()),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
+    oag_fetch(entity = "datasource"),
+    "`entity`.+must.+be.+one.+of.+"
   )
   expect_error(
     oag_fetch(list()),
