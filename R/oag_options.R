@@ -326,7 +326,33 @@ fmt_opt_page <- function(page, .call) {
 #'
 #' @keywords internal
 
-fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
+fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
+  # Coerce `is_cursor_next` to FALSE if NULL
+  if (is.null(is_cursor_next)) {
+    is_cursor_next <- FALSE
+  }
+
+  # Check that `is_cursor_next` is a logical
+  if (
+    !is.null(is_cursor_next) &&
+      (!rlang::is_scalar_logical(is_cursor_next) || anyNA(is_cursor_next))
+  ) {
+    cli::cli_abort(
+      "In the list of options, {.var is_cursor_next} must be a logical scalar.",
+      call = .call
+    )
+  }
+
+  # `is_cursor_next` cannot be used without using `cursor`
+  if ((is.null(cursor) || rlang::is_scalar_logical(cursor)) && is_cursor_next) {
+    cli::cli_abort(
+      paste0(
+        "In the list of options, {.var is_cursor_next} cannot be set to ",
+        "`TRUE` without passing a string to {.arg cursor}."
+      ),
+      call = .call
+    )
+  }
   if (!is.null(cursor)) {
     if (
       (!rlang::is_scalar_logical(cursor) || anyNA(cursor)) && !is_cursor_next
@@ -334,7 +360,7 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
       cli::cli_abort(
         paste0(
           "In the list of options, {.var cursor} must be a logical scalar or ",
-          "NULL or NULL to use OpenAIRE Graph API's default."
+          "NULL to use OpenAIRE Graph API's default."
         ),
         call = .call
       )
@@ -342,7 +368,10 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
       (!rlang::is_scalar_character(cursor) || anyNA(cursor)) && is_cursor_next
     ) {
       cli::cli_abort(
-        "{.var cursor} can only be updated with a bare string.",
+        paste0(
+          "In the list of options, {.var cursor} must be a bare string when ",
+          "{.var is_cursor_next} is set to `TRUE`."
+        ),
         call = .call
       )
     } else if (is_cursor_next) {
