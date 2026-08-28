@@ -46,29 +46,36 @@ oag_api_url <- function(entity) {
   file.path(api_url, entity)
 }
 
-#' Compose a query to the OpenAIRE Graph API
+#' Compose a query and fetch the data from the OpenAIRE Graph API
 #'
+#' @description
 #' The OpenAIRE Graph API works with filters and options (see
-#' \url{https://graph.openaire.eu/docs/apis/graph-api/}). The function
-#' interprets additional (named) argument(s) passed to the `...` argument as
+#' \url{https://graph.openaire.eu/docs/apis/graph-api/}). The functions
+#' interpret additional (named) argument(s) passed to the `...` argument as
 #' filter(s). The filter(s) must be named with the name of the field to filter,
 #' as described in the OpenAIRE Graph API. Options can be specified with
-#' `opa_options()`.
+#' `oag_options()`.
+#'
+#' Note that `oag_fetch()` is based on `oag_request()`, which use throttling
+#' to make sure that the performed requests never exceed the rate limit (60 per
+#' hour for unauthenticated requests, compared to 7200 for authenticated ones).
 #'
 #' @inheritParams oag_api_url
 #' @param ... Filter(s) to use when composing the query. The filter(s) must be
-#' named and their value must be a string. The name of the filter must be a
-#' valid filter referenced in the OpenAIRE Graph API documentation. For example,
-#' `publicationYear = "2020"` can be used to filter publication from 2020 when
-#' working with "research-products" entity.
-#' @param options A set of options (created with `opa_options()`) used to
+#' named and be a valid filter as referenced in the OpenAIRE Graph API
+#' documentation. For example, `publicationYear = "2020"` can be used to
+#' filter publication from 2020 when working with the "research-products"
+#' entity.
+#' @param options A set of options (created with `oag_options()`) used to
 #' compose the query. Options allow to control sorting, paging, etc. See
-#' `?opa_options()` for more details.
+#' `?oag_options()` for more details.
 #'
-#' @returns A string with the query URL.
+#' @returns A string with the query URL for `oag_query()` and he results from
+#' the performed query in a JSON format for `oag_fetch()`.
 #' @export
 #'
 #' @examples
+#' # Create a query
 #' oag_query(
 #'   "research-products",
 #'   publicationYear = "2020",
@@ -176,23 +183,13 @@ oag_query <- function(entity, ..., options = NULL) {
   structure(query, class = c("oag_query", "character"))
 }
 
-#' Perform a request and fetch the response from OpenAIRE Graph API
+#' @param token A valid regular or refresh token to authenticate to the
+#' OpenAIRE Graph API, granting the user of 7'200 requests per hour. If no
+#' token is passed, the request will be unauthenticated, with a rate limit of
+#' 60 requests per hour.
 #'
-#' Based on an `oag_query` object or a string passed to the function, it
-#' performs a request to the OpenAIRE Graph API and fetch the response back.
-#' Note that the function use throttling to make sure that the performed
-#' requests never exceed the rate limit (60 per hour for unauthenticated
-#' requests -- authenticated request is not implemented yet). To see the
-#' remaining number of requests and the time to wait when the rate has been
-#' exceeded, run `httr2::throttle_status()` and look for the row where `realm`
-#' is "api.openaire.eu".
-#'
-#' @param query An `oag_query` object formatted with `oag_query()` or a bare
-#' string with a valid query to the API.
-#'
-#' @returns The results from the performed query in a JSON format.
 #' @export
-#'
+#' @rdname oag_query
 #' @examples
 #' \dontrun{
 #' # Create a query then pipe it to `oag_fetch()` to get the results
@@ -201,7 +198,7 @@ oag_query <- function(entity, ..., options = NULL) {
 #'   publicationYear = "2020",
 #'   options = oag_options(sortBy = c(relevance = "ASC"))
 #' ) |>
-#'   oag_fetch()
+#'   oag_request()
 #' }
 
 oag_fetch <- function(
