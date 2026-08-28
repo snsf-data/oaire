@@ -233,7 +233,7 @@ fmt_opt_sorting <- function(sortBy, entity, call) {
 
 fmt_opt_stats <- function(includeStats, call) {
   if (!is.null(includeStats)) {
-    if (!rlang::is_scalar_logical(includeStats)) {
+    if (!rlang::is_scalar_logical(includeStats) || anyNA(includeStats)) {
       cli::cli_abort(
         paste0(
           "In the list of options, {.var includeStats} must be a logical ",
@@ -328,7 +328,9 @@ fmt_opt_page <- function(page, call) {
 
 fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
   if (!is.null(cursor)) {
-    if (!rlang::is_scalar_logical(cursor) && !is_cursor_next) {
+    if (
+      (!rlang::is_scalar_logical(cursor) || anyNA(cursor)) && !is_cursor_next
+    ) {
       cli::cli_abort(
         paste0(
           "In the list of options, {.var cursor} must be a logical scalar or ",
@@ -336,7 +338,9 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
         ),
         call = call
       )
-    } else if (!rlang::is_bare_string(cursor) && is_cursor_next) {
+    } else if (
+      (!rlang::is_scalar_character(cursor) || anyNA(cursor)) && is_cursor_next
+    ) {
       cli::cli_abort(
         "{.var cursor} can only be updated with a bare string.",
         call = call
