@@ -18,8 +18,8 @@
 #' access token, valid for one hour, based on the refresh token. After that, a
 #' new access token will be refreshed when the 1-hour period is over.
 #'
-#' If no refresh token exist (or the user requested not to use it), the function
-#' will fall back to using the regular token stored in the environment
+#' If no refresh token exist (or if the user requested not to use it), the
+#' function will fall back to using the regular token stored in the environment
 #' variables. In the end, if there are no tokens in the environment variables,
 #' the function will return nothing.
 #'
@@ -28,8 +28,7 @@
 #' @param token A string with a regular token. The default is to check the
 #' environment variables for a variable called `oag_api_token`.
 #'
-#' @returns A string representing a token to access the OpenAIRE Graph API or
-#' NULL.
+#' @returns A token to access the OpenAIRE Graph API or NULL.
 #' @export
 #'
 #' @examples

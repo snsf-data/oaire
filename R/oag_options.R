@@ -1,8 +1,8 @@
 #' Collect the options to use in a query to the OpenAIRE Graph API
 #'
 #' This function collects the options requirements to use when building a query.
-#' The validity of the options are collected without any checks. The checks will
-#' take place later, after being passed to `oag_query()`.
+#' The options are collected without any checks regarding their validity. The
+#' checks will take place later, after being passed to `oag_query()`.
 #'
 #' @param sortBy A named character vector with the field(s) on which to sort the
 #' results. Names must be valid sorting fields, only accepting the values "ASC"
@@ -14,17 +14,17 @@
 #' @param pageSize A positive integer indicating the number of records per page
 #' a query should return. The OpenAIRE Graph API has a limit of 100 records per
 #' page.
-#' @param page A positive integer indicating the page the query should return.
-#' Using this argument trigger an offset-based paging query. Note that the
-#' `page` (offset-based paging) and `cursor` (cursor-based paging) arguments
-#' cannot be used simultaneously.
+#' @param page A positive integer indicating the specific page the query should
+#' return. When `page` is kept NULL, this triggers an offset-based paging query.
+#' Note that the `page` (offset-based paging) and `cursor` (cursor-based paging)
+#' arguments cannot be used simultaneously.
 #' @param cursor A logical indicating whether to use cursor-based paging when
 #' querying the OpenAIRE Graph API (`TRUE`) or not (`FALSE`). Note that the
 #' `cursor` (cursor-based paging) and `page` (offset-based paging) arguments
 #' cannot be used simultaneously.
-#' @param is_cursor_next Indicates to the function whether the `cursor` argument
-#' must be interpreted as the method to use ("cursor-based paging") or as the
-#' next cursor.
+#' @param is_cursor_next **Do not use this argument**. It is used internally by
+#' `oag_fetch()` to indicate whether the `cursor` argument must be interpreted
+#' as the method to use ("cursor-based paging") or as the next cursor.
 #'
 #' @returns A list of class `oag_options` with the options requirements to pass
 #' to `oa_query()`. Note that at this stage, the validity of the options has not
