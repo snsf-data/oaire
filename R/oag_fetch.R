@@ -204,7 +204,99 @@ oag_query <- function(entity, ..., options = NULL) {
 #'   oag_fetch()
 #' }
 
-oag_fetch <- function(entity, ..., options = NULL) {
+oag_fetch <- function(
+  entity,
+  ...,
+  options = NULL,
+  token = oag_api_token()
+) {
+  # Dry run to check that entity, filters, and options are correctly formatted
+  invisible(oag_query(
+    entity,
+    ...,
+    options = options
+  ))
+  # If page is not NULL we simply fetch the data for that single page
+  if (!is.null(options[["page"]])) {
+    res <- oag_request(oag_query(entity, ..., options = options), token = token)
+  } else {
+    # Here we will use paging. To know how many records (and thus pages) have to
+    # be accessed, we make a dry run with the filters passed by the user but
+    # for a single page of size 1 so we can retrieve the numbers of records.
+    query_1_n <- oag_query(
+      entity = entity,
+      ...,
+      options = oag_options(
+        page = 1,
+        pageSize = 1
+      )
+    )
+
+    # Access the number of records and compute, given the page size, the
+    # required number of pages to query to get all the records.
+    res_query_1_n <- oag_request(query_1_n, token = token)
+    n_records <- res_query_1_n[["header"]][["numFound"]]
+    p_size <- options[["pageSize"]]
+    n_query <- ceiling(n_records / p_size)
+
+    # Get the number of available tokens according to API terms of use
+    n_tokens <- available_oag_tokens()
+
+    # Inform user when the number of tokens available is smaller than required
+    # to fetch all the data.
+    if (n_query > n_tokens) {
+      cli::cli_warn(
+        c(
+          paste0(
+            "The number of requests ({n_query}) is greater than the number of ",
+            "available requests ({n_tokens})."
+          ),
+          i = paste0(
+            "It is likely that the data fetching will pause at some point to ",
+            "comply with the API terms of use."
+          )
+        )
+      )
+    }
+
+    res <- list()
+    # Since we will use paging, the page options must be NULL. It is irrelevant
+    # for cursor-based paging. For offset-based paging, we will just go along
+    # the number of pages in `n_query`.
+    options[["page"]] <- NULL
+    # If `cursor` is not NULL, `use_cursor` is by default set to FALSE (ensuring
+    # that the first page is always accessed with "cursor=*" when using
+    # cursor-based paging).
+    if (is.null(options[["cursor"]])) {
+      use_cursor <- FALSE
+    } else {
+      use_cursor <- options[["cursor"]]
+    }
+
+    cli::cli_progress_bar("Fetching OpenAIRE data", total = n_query)
+    # Loop across the pages
+    for (i in seq_len(n_query)) {
+      # Make the request to the data from the current page
+      res[[i]] <- oag_request(
+        oag_query(entity, ..., options = options),
+        token = token
+      )
+      # If cursor-based paging is used, set `is_cursor_next` to TRUE and pass
+      # the next cursor to `cursor`.
+      if (use_cursor && i < n_query) {
+        options[["cursor"]] <- res[[i]][["header"]][["nextCursor"]]
+        options[["is_cursor_next"]] <- TRUE
+      }
+      cli::cli_progress_update()
+    }
+    cli::cli_progress_done()
+
+    # Flatten the results from all pages (but it is still a difficult JSON
+    # object to handle though).
+    res <- unlist(lapply(res, \(x) x[["results"]]), recursive = FALSE)
+  }
+
+  res
 }
 
 oag_request <- function(url, token = oag_api_token()) {
