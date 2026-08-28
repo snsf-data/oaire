@@ -436,7 +436,7 @@ get_sorting_fields <- function(entity) {
 #' @returns Nothing, use for side-effect only.
 #' @export
 
-sorting_error_msg <- function(msg, call = rlang::caller_env(0)) {
+sorting_error_msg <- function(msg, .call = rlang::current_env()) {
   cli::cli_abort(
     c(
       msg,
