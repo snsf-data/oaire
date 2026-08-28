@@ -149,8 +149,7 @@ oag_set_options <- function(
     collapse = "&"
   )
 
-  # Set the class of the option string and return it
-  structure(option_str, class = c("oag_url_options", "character"))
+  option_str
 }
 
 #' Check and format sorting option passed to `oag_set_options()`
