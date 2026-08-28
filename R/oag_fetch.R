@@ -206,21 +206,37 @@ oag_query <- function(entity, ..., options = NULL) {
 
 oag_fetch <- function(query) {
   if (!rlang::is_bare_string(query) && !inherits(query, "oag_query")) {
+}
+
+oag_request <- function(url, token = oag_api_token()) {
+  if (!inherits(url, "oag_query") && !rlang::is_scalar_character(url)) {
     cli::cli_abort(
-      "The query must be an object of class `oag_query` or a bare string."
+      "The object passed to {.arg url} must be a string of class `oag_query`.",
     )
   }
 
   # Prepare the request specifying that we will read the results a JSON
-  req <- httr2::request(utils::URLencode(query)) |>
-    httr2::req_headers(Accept = "application/json") |>
-    httr2::req_throttle(capacity = 60, fill_time_s = 3600)
+  req <- httr2::request(utils::URLencode(url)) |>
+    httr2::req_headers(Accept = "application/json")
+
+  # Set rate limit for requests depending on whether the user has a token or not
+  if (nzchar(token)) {
+    req <- httr2::req_auth_bearer_token(req, token) |>
+      httr2::req_throttle(capacity = 7200, fill_time_s = 3600)
+  } else {
+    req <- httr2::req_throttle(req, capacity = 60, fill_time_s = 3600)
+  }
 
   # Perform the request will catching the error message in case the request did
   # not perform as expected.
   res <- req |>
-    httr2::req_error(body = \(x) httr2::resp_body_json(x)$message) |>
-    httr2::req_perform(error_call = rlang::caller_env(0)) |>
+    httr2::req_error(body = \(x) {
+      c(
+        httr2::resp_body_json(x)$error,
+        httr2::resp_body_json(x)$message
+      )
+    }) |>
+    httr2::req_perform(error_call = rlang::current_env()) |>
     httr2::resp_body_json()
 
   res
