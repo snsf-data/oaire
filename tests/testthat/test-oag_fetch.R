@@ -206,6 +206,80 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
     ),
     "`cursor`.+must.+be.+a.+logical.+scalar"
   )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(cursor = 1, is_cursor_next = NULL)
+    ),
+    "`cursor`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(cursor = 1, is_cursor_next = FALSE)
+    ),
+    "`cursor`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(cursor = 1, is_cursor_next = TRUE)
+    ),
+    "`cursor`.+must.+be.+a.+bare.+string.+when.+`is_cursor_next`.+is.+`TRUE`"
+  )
+
+  # `is_cursor_next` arg is not a logical scalar or NULL
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(is_cursor_next = 1)
+    ),
+    "In.+the.+list.+of.+options,.+`is_cursor_next`.+must.+be.+a.+logical.+"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(is_cursor_next = "a")
+    ),
+    "In.+the.+list.+of.+options,.+`is_cursor_next`.+must.+be.+a.+logical.+"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(is_cursor_next = "TRUE")
+    ),
+    "In.+the.+list.+of.+options,.+`is_cursor_next`.+must.+be.+a.+logical.+"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(is_cursor_next = NA)
+    ),
+    "In.+the.+list.+of.+options,.+`is_cursor_next`.+must.+be.+a.+logical.+"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(is_cursor_next = c(TRUE, TRUE))
+    ),
+    "In.+the.+list.+of.+options,.+`is_cursor_next`.+must.+be.+a.+logical.+"
+  )
+
+  # Incompatibilities between `is_cursor_next` and `cursor`
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(cursor = TRUE, is_cursor_next = TRUE)
+    ),
+    "`is_cursor_next`.+cannot.+be.+set.+to.+`TRUE`.+string.+to.+`cursor`"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(cursor = FALSE, is_cursor_next = TRUE)
+    ),
+    "`is_cursor_next`.+cannot.+be.+set.+to.+`TRUE`.+string.+to.+`cursor`"
+  )
 
   # `page` arg is not a positive integer or NULL
   expect_error(
@@ -347,6 +421,33 @@ test_that("oag_query() returns is successful when expected", {
   }))
   expect_no_error(lapply(oag_entities(), \(x) {
     oag_query(entity = x, options = oag_options(cursor = TRUE))
+  }))
+  expect_no_error(lapply(oag_entities(), \(x) {
+    oag_query(
+      entity = x,
+      options = oag_options(cursor = FALSE, is_cursor_next = NULL)
+    )
+  }))
+  expect_no_error(lapply(oag_entities(), \(x) {
+    oag_query(
+      entity = x,
+      options = oag_options(cursor = NULL, is_cursor_next = NULL)
+    )
+  }))
+  expect_no_error(lapply(oag_entities(), \(x) {
+    oag_query(
+      entity = x,
+      options = oag_options(cursor = TRUE, is_cursor_next = NULL)
+    )
+  }))
+
+  # None of the valid entities should thrown an error (for all valid values of
+  # `is_cursor_next`).
+  expect_no_error(lapply(oag_entities(), \(x) {
+    oag_query(
+      entity = x,
+      options = oag_options(cursor = "a", is_cursor_next = TRUE)
+    )
   }))
 
   # None of the valid entities should thrown an error (for all valid values of
