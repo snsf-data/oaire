@@ -67,7 +67,7 @@ oag_options <- function(
   if (all(mapply(is.null, options))) {
     invisible()
   } else {
-    structure(options, class = c("oag_options", "character"))
+    structure(options, class = c("oag_options", "list"))
   }
 }
 
