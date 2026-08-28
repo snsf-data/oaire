@@ -74,7 +74,7 @@ oag_options <- function(
 #' Check and format all options from an object of class `oag_options`
 #'
 #' @inheritParams oag_options
-#' @inheritParams get_oag_api_url
+#' @inheritParams oag_api_url
 #'
 #' @returns A string with options requirements formatted according to the
 #' OpenAIRE Graph API's documentation.

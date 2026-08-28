@@ -34,9 +34,9 @@ oag_entities <- function() {
 #' @export
 #'
 #' @examples
-#' get_oag_api_url("datasources")
+#' oag_api_url("datasources")
 
-get_oag_api_url <- function(entity) {
+oag_api_url <- function(entity) {
   # Only entities returned by `oag_entities()` are accepted
   entity <- rlang::arg_match(entity, oag_entities())
   # Base OpenAIRE Graph API URL
@@ -55,7 +55,7 @@ get_oag_api_url <- function(entity) {
 #' as described in the OpenAIRE Graph API. Options can be specified with
 #' `opa_options()`.
 #'
-#' @inheritParams get_oag_api_url
+#' @inheritParams oag_api_url
 #' @param ... Filter(s) to use when composing the query. The filter(s) must be
 #' named and their value must be a string. The name of the filter must be a
 #' valid filter referenced in the OpenAIRE Graph API documentation. For example,
@@ -161,7 +161,7 @@ oag_query <- function(entity, ..., options = NULL) {
   }
 
   # Get the API URL of the entity
-  query_entity <- get_oag_api_url(entity)
+  query_entity <- oag_api_url(entity)
   # Combine the filters and options
   query_params <- paste0(c(collapsed_filters, options), collapse = "&")
   # In case `query_params` is empty, the final query is `query_entity`. If not,
