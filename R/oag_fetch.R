@@ -353,3 +353,17 @@ oag_request <- function(url, token = oag_api_token()) {
 
   res
 }
+
+#' Return how many request tokens are available to query the OpenAIRE Graph API
+#'
+#' @param realm A string used to identify the "realm"
+#'
+#' @returns The number of request tokens available to query the OpenAIRE Graph
+#' API.
+#' @keywords internal
+
+available_oag_tokens <- function(realm = "openaire") {
+  throttle_status <- httr2::throttle_status()
+  oag_realm <- grepl("openaire", throttle_status[["realm"]])
+  throttle_status[["tokens"]][oag_realm]
+}
