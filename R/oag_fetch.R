@@ -204,8 +204,7 @@ oag_query <- function(entity, ..., options = NULL) {
 #'   oag_fetch()
 #' }
 
-oag_fetch <- function(query) {
-  if (!rlang::is_bare_string(query) && !inherits(query, "oag_query")) {
+oag_fetch <- function(entity, ..., options = NULL) {
 }
 
 oag_request <- function(url, token = oag_api_token()) {
