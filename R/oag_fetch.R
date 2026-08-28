@@ -98,7 +98,8 @@ oag_query <- function(entity, ..., options = NULL) {
         includeStats = options[["includeStats"]],
         pageSize = options[["pageSize"]],
         page = options[["page"]],
-        cursor = options[["cursor"]]
+        cursor = options[["cursor"]],
+        is_cursor_next = options[["is_cursor_next"]]
       )
     }
   }

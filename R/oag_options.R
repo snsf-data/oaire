@@ -22,6 +22,9 @@
 #' querying the OpenAIRE Graph API (`TRUE`) or not (`FALSE`). Note that the
 #' `cursor` (cursor-based paging) and `page` (offset-based paging) arguments
 #' cannot be used simultaneously.
+#' @param is_cursor_next Indicates to the function whether the `cursor` argument
+#' must be interpreted as the method to use ("cursor-based paging") or as the
+#' next cursor.
 #'
 #' @returns A list of class `oag_options` with the options requirements to pass
 #' to `oa_query()`. Note that at this stage, the validity of the options has not
@@ -50,14 +53,16 @@ oag_options <- function(
   includeStats = NULL,
   pageSize = NULL,
   page = NULL,
-  cursor = NULL
+  cursor = NULL,
+  is_cursor_next = FALSE
 ) {
   options <- list(
     sortBy = sortBy,
     includeStats = includeStats,
     pageSize = pageSize,
     page = page,
-    cursor = cursor
+    cursor = cursor,
+    is_cursor_next = is_cursor_next
   )
   if (all(mapply(is.null, options))) {
     invisible()
@@ -81,7 +86,8 @@ oag_set_options <- function(
   includeStats = NULL,
   pageSize = NULL,
   page = NULL,
-  cursor = NULL
+  cursor = NULL,
+  is_cursor_next = FALSE
 ) {
   # Get the environment of the calling function to allow associating errors
   # with the calling function.
@@ -94,7 +100,7 @@ oag_set_options <- function(
   includeStats_str <- fmt_opt_stats(includeStats, call)
   pageSize_str <- fmt_opt_page_size(pageSize, call)
   page_str <- fmt_opt_page(page, call)
-  cursor_str <- fmt_opt_cursor(cursor, call)
+  cursor_str <- fmt_opt_cursor(cursor, is_cursor_next, call)
 
   # Check that offset- and cursor-based paging having not been both set
   if (!is.null(page) && (!is.null(cursor) && cursor)) {
@@ -321,9 +327,9 @@ fmt_opt_page <- function(page, call) {
 #'
 #' @keywords internal
 
-fmt_opt_cursor <- function(cursor, call) {
+fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
   if (!is.null(cursor)) {
-    if (!rlang::is_scalar_logical(cursor)) {
+    if (!rlang::is_scalar_logical(cursor) && !is_cursor_next) {
       cli::cli_abort(
         paste0(
           "In the list of options, {.var cursor} must be a logical scalar or ",
@@ -331,6 +337,13 @@ fmt_opt_cursor <- function(cursor, call) {
         ),
         call = call
       )
+    } else if (!rlang::is_bare_string(cursor) && is_cursor_next) {
+      cli::cli_abort(
+        "{.var cursor} can only be updated with a bare string.",
+        call = call
+      )
+    } else if (is_cursor_next) {
+      cursor <- paste0("cursor=", cursor)
     } else if (cursor) {
       cursor <- "cursor=*"
     }
@@ -338,6 +351,7 @@ fmt_opt_cursor <- function(cursor, call) {
 
   cursor
 }
+
 
 #' Get the list of available fields for sorting in the entities
 #'
