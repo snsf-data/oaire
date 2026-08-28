@@ -67,6 +67,10 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
     "`sortBy`.+must.+be.+a.+character.+vector"
   )
   expect_error(
+    oag_query(entity = "datasources", options = oag_options(sortBy = NA)),
+    "`sortBy`.+must.+be.+a.+character.+vector"
+  )
+  expect_error(
     oag_query(
       entity = "datasources",
       options = oag_options(sortBy = TRUE)
@@ -161,6 +165,13 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
   expect_error(
     oag_query(
       entity = "datasources",
+      options = oag_options(includeStats = NA)
+    ),
+    "`includeStats`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
       options = oag_options(includeStats = "TRUE")
     ),
     "`includeStats`.+must.+be.+a.+logical.+scalar"
@@ -183,6 +194,10 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
   # `cursor` arg is not a logical scalar or NULL
   expect_error(
     oag_query(entity = "datasources", options = oag_options(cursor = 1)),
+    "`cursor`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
+    oag_query(entity = "datasources", options = oag_options(cursor = NA)),
     "`cursor`.+must.+be.+a.+logical.+scalar"
   )
   expect_error(
@@ -287,6 +302,10 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
     "`page`.+must.+be.+a.+scalar.+positive.+integer"
   )
   expect_error(
+    oag_query(entity = "datasources", options = oag_options(page = NA)),
+    "`page`.+must.+be.+a.+scalar.+positive.+integer"
+  )
+  expect_error(
     oag_query(
       entity = "datasources",
       options = oag_options(page = "TRUE")
@@ -321,6 +340,13 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
     oag_query(
       entity = "datasources",
       options = oag_options(pageSize = "1")
+    ),
+    "`pageSize`.+must.+be.+a.+scalar.+positive.+integer"
+  )
+  expect_error(
+    oag_query(
+      entity = "datasources",
+      options = oag_options(pageSize = NA)
     ),
     "`pageSize`.+must.+be.+a.+scalar.+positive.+integer"
   )

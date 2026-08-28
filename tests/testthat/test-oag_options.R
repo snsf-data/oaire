@@ -69,6 +69,10 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
     "`sortBy`.+must.+be.+a.+character.+vector"
   )
   expect_error(
+    oag_set_options(entity = "datasources", sortBy = NA),
+    "`sortBy`.+must.+be.+a.+character.+vector"
+  )
+  expect_error(
     oag_set_options(entity = "datasources", sortBy = TRUE),
     "`sortBy`.+must.+be.+a.+character.+vector"
   )
@@ -125,6 +129,10 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
     "`includeStats`.+must.+be.+a.+logical.+scalar"
   )
   expect_error(
+    oag_set_options(entity = "datasources", includeStats = NA),
+    "`includeStats`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
     oag_set_options(entity = "datasources", includeStats = "TRUE"),
     "`includeStats`.+must.+be.+a.+logical.+scalar"
   )
@@ -140,6 +148,10 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
   # `cursor` arg is not a logical scalar or NULL
   expect_error(
     oag_set_options(entity = "datasources", cursor = 1),
+    "`cursor`.+must.+be.+a.+logical.+scalar"
+  )
+  expect_error(
+    oag_set_options(entity = "datasources", cursor = NA),
     "`cursor`.+must.+be.+a.+logical.+scalar"
   )
   expect_error(
