@@ -1,26 +1,26 @@
-# Tests for `get_oag_api_url()` ----------------------------------------------------
+# Tests for `oag_api_url()` ----------------------------------------------------
 
-test_that("get_oag_api_url() returns an error for incorrect entities", {
+test_that("oag_api_url() returns an error for incorrect entities", {
   # `entity` arg is missing
-  expect_error(get_oag_api_url(), "`entity`")
+  expect_error(oag_api_url(), "`entity`")
   # `entity` arg does not exist
-  expect_error(get_oag_api_url(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
+  expect_error(oag_api_url(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
   # `entity` is mispelled but partially match
   expect_error(
-    get_oag_api_url(entity = "datasource"),
+    oag_api_url(entity = "datasource"),
     "`entity`.+must.+be.+one.+of.+"
   )
 })
 
 ## Success ----
 
-test_that("get_oag_api_url() is successful when entity is valid", {
+test_that("oag_api_url() is successful when entity is valid", {
   # None of the valid entities should thrown an error
-  expect_no_error(lapply(oag_entities(), \(x) get_oag_api_url(entity = x)))
+  expect_no_error(lapply(oag_entities(), \(x) oag_api_url(entity = x)))
 })
 
 
-# Tests for `oag_query()` ------------------------------------------------
+# Tests for `oag_query()` ------------------------------------------------------
 
 # The tests in this section are basically a copy of the tests for
 # `oag_set_options()`, but used via the of `oag_options()` passed to
