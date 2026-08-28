@@ -76,8 +76,14 @@ get_oag_api_url <- function(entity) {
 #' )
 
 oag_query <- function(entity, ..., options = NULL) {
+  if (is.null(rlang::caller_call())) {
+    .call = rlang::current_env()
+  } else {
+    .call = rlang::caller_env()
+  }
+
   # Only entities returned by `oag_entities()` are accepted
-  entity <- rlang::arg_match(entity, oag_entities())
+  entity <- rlang::arg_match(entity, oag_entities(), error_call = .call)
   # Extract the filters passed as additional arguments
   filters <- rlang::dots_list(...)
 
