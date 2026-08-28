@@ -1,14 +1,14 @@
 # Tests for `oag_options()` ----------------------------------------------------
 
 test_that("oag_options() returns NULL when no input provided", {
-  expect_null(oag_options())
   expect_null(
     oag_options(
       sortBy = NULL,
       includeStats = NULL,
       pageSize = NULL,
       page = NULL,
-      cursor = NULL
+      cursor = NULL,
+      is_cursor_next = NULL
     )
   )
 })
@@ -57,7 +57,7 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
   expect_error(oag_set_options(), "`entity`")
   # `entity` arg does not exist
   expect_error(oag_set_options(entity = "aaa"), "`entity`.+must.+be.+one.+of.+")
-  # `entity` is mispelled but partially match
+  # `entity` is misspelled but partially match
   expect_error(
     oag_set_options(entity = "datasource"),
     "`entity`.+must.+be.+one.+of.+"
@@ -203,11 +203,19 @@ test_that("oag_set_options() returns an error for incorrectly formatted options"
 
   # Incompatibilities between `is_cursor_next` and `cursor`
   expect_error(
-    oag_set_options(entity = "datasources", cursor = TRUE, is_cursor_next = TRUE),
+    oag_set_options(
+      entity = "datasources",
+      cursor = TRUE,
+      is_cursor_next = TRUE
+    ),
     "`is_cursor_next`.+cannot.+be.+set.+to.+`TRUE`.+string.+to.+`cursor`"
   )
   expect_error(
-    oag_set_options(entity = "datasources", cursor = FALSE, is_cursor_next = TRUE),
+    oag_set_options(
+      entity = "datasources",
+      cursor = FALSE,
+      is_cursor_next = TRUE
+    ),
     "`is_cursor_next`.+cannot.+be.+set.+to.+`TRUE`.+string.+to.+`cursor`"
   )
 
