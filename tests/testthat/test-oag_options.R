@@ -14,11 +14,38 @@ test_that("oag_options() returns NULL when no input provided", {
 })
 
 test_that("oag_options() returns object of class `oag_options`", {
-  expect_s3_class(oag_options(sortBy = ""), "oag_options")
-  expect_s3_class(oag_options(includeStats = ""), "oag_options")
-  expect_s3_class(oag_options(pageSize = ""), "oag_options")
-  expect_s3_class(oag_options(page = ""), "oag_options")
-  expect_s3_class(oag_options(cursor = ""), "oag_options")
+  # The arguments here are voluntarily wrong, but the goal is to check that the
+  # class of the object returned is correct
+  expect_s3_class(
+    oag_options(sortBy = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
+  expect_s3_class(
+    oag_options(includeStats = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
+  expect_s3_class(
+    oag_options(pageSize = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
+  expect_s3_class(
+    oag_options(page = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
+  expect_s3_class(
+    oag_options(cursor = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
+  expect_s3_class(
+    oag_options(is_cursor_next = ""),
+    c("oag_options", "list"),
+    exact = TRUE
+  )
 })
 
 # Tests for `oag_set_options()` ------------------------------------------------
