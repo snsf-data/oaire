@@ -299,6 +299,27 @@ oag_fetch <- function(
   res
 }
 
+#' Perform the request to the OpenAIRE Graph API
+#'
+#' @param url An `oag_query` object or a string with a valid URL to make a call
+#' to the API.
+#' @param token A string with a valid token to call the API. `oag_api_token()`
+#' automatically handle retrieving the user's token when saved as environment
+#' variable. See `?oag_api_token()` for more details.
+#'
+#' @returns The response from the API as a JSON object.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' oag_query(
+#'   "research-products",
+#'   publicationYear = "2020",
+#'   options = oag_options(sortBy = c(relevance = "ASC"))
+#' ) |>
+#'   oag_request()
+#' }
+
 oag_request <- function(url, token = oag_api_token()) {
   if (!inherits(url, "oag_query") && !rlang::is_scalar_character(url)) {
     cli::cli_abort(
