@@ -966,3 +966,41 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
     1
   )
 })
+
+# Tests for URL format in `oag_request()` --------------------------------------
+
+## Errors ----
+test_that("oag_request() throws an error when `url` is not a string or an `oag_query`", {
+  # `url` is neither a string or an `oag_query` object
+  expect_error(
+    oag_request(1),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(c()),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(NA),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(NULL),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(list()),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(TRUE),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+  expect_error(
+    oag_request(letters),
+    "The.+object.+passed.+to.+`url`.+must.+be.+string.+of.+class.+`oag_query`"
+  )
+
+  # `url` is a string but not a proper one
+  expect_error(oag_request("aaa"), "Failed.+to.+parse.+URL")
+})
