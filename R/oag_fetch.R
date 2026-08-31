@@ -208,11 +208,7 @@ oag_fetch <- function(
   token = oag_api_token()
 ) {
   # Dry run to check that entity, filters, and options are correctly formatted
-  invisible(oag_query(
-    entity,
-    ...,
-    options = options
-  ))
+  invisible(oag_query(entity, ..., options = options))
   # If page is not NULL we simply fetch the data for that single page
   if (!is.null(options[["page"]])) {
     res <- oag_request(oag_query(entity, ..., options = options), token = token)
