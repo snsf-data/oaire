@@ -257,10 +257,6 @@ oag_fetch <- function(
     }
 
     res <- list()
-    # Since we will use paging, the page options must be NULL. It is irrelevant
-    # for cursor-based paging. For offset-based paging, we will just go along
-    # the number of pages in `n_query`.
-    options[["page"]] <- NULL
     # If `cursor` is not NULL, `use_cursor` is by default set to FALSE (ensuring
     # that the first page is always accessed with "cursor=*" when using
     # cursor-based paging).
@@ -273,6 +269,11 @@ oag_fetch <- function(
     cli::cli_progress_bar("Fetching OpenAIRE data", total = n_query)
     # Loop across the pages
     for (i in seq_len(n_query)) {
+      # If cursor is not being used, then we use paging and set the page to the
+      # ith page to query.
+      if (!use_cursor) {
+        options[["page"]] <- i
+      }
       # Make the request to the data from the current page
       res[[i]] <- oag_request(
         oag_query(entity, ..., options = options),
