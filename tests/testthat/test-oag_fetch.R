@@ -66,7 +66,7 @@ test_that("oag_query() returns an error for incorrectly formatted options", {
     "Options.+passed.+to.+a.+query.+must.+be.+of.+class.+`oag_options`"
   )
   expect_error(
-    oag_query(entity = "datasources", options = list(cursor="*")),
+    oag_query(entity = "datasources", options = list(cursor = "*")),
     "Options.+passed.+to.+a.+query.+must.+be.+of.+class.+`oag_options`"
   )
 
