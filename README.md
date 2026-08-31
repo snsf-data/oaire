@@ -7,45 +7,203 @@
 
 <!-- badges: end -->
 
-The goal of oaire is to …
+The `oaire` package offers an interface between R and the [OpenAIRE
+Graph API version 3](https://graph.openaire.eu/docs/apis/graph-api/).
+The package is built around four main functions:
+
+- `oag_query()` to build a valid query
+- `oag_options()` to set the options of a query (sorting, paging…)
+- `oag_request()` to send a request to the OpenAIRE Graph API
+- `oag_fetch()` to wrap in a single function building a query, making a
+  request, and getting the data from the API
+
+The most straightforward approach is to use `oag_fetch()` combined with
+`oag_options()`. Another approach is to make your own workflow: 1)
+building a query with `oa_query()`, 2) specifying options with
+`oag_options()` if necessary, 3) sending a request to the API with
+`oag_request()`.
+
+The advantage of using `oag_fetch()` is that it handles paging
+automatically. `oag_query()` combined with `oag_request()` is better
+suited to retrieve a single page and/or get the number of records
+associated to a specific query.
 
 ## Installation
 
-You can install the development version of oaire like so:
+You can install the development version of `oaire` like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install(gorinsimon/oaire)
 ```
 
-## Example
+## Authenticated request
 
-This is a basic example which shows you how to solve a common problem:
+The OpenAIRE Graph API can be accessed via authenticated and
+non-authenticated requests (see its [documentation on authenticated
+requests](https://graph.openaire.eu/docs/apis/authentication)). You can
+use a personal access token to make an authenticated request (granting
+7’200 requests per hour). Two types of tokens exists: regular token and
+refresh token. The regular token is valid only one hour and must be
+renewed in your OpenAIRE Graph account after the validity is over. The
+refresh token is valid for one month and allows to generate access
+tokens that are valid for one hour. Access tokens can be renewed during
+the whole validity period of the refresh token.
+
+If `oaire` cannot find any token in your environment variables, it will
+by default make an non-authenticated request (limited to 60 requests per
+hour). When a valid refresh token can be found in the environment
+variables, `oaire` will handle the refresh of the access token.
+
+To make your token available to `oaire`, save it in your `.Renviron`
+file (it can be find at the user’s home directory or it can be opened
+directly by running `usethis::edit_r_environ()`). To add a regular
+token, add the following line:
+
+    oag_api_token="<YOUR_REGULAR_TOKEN>"
+
+To add a refresh token, add the following line:
+
+    oag_api_refresh_token="<YOUR_REFRESH_TOKEN>"
+
+## Getting data from OpenAIRE Graph API
+
+The OpenAIRE Graph API works around the idea of entities and filters.
+Entities have their own endpoints (see the [documentation of the
+OpenAIRE Graph API](https://graph.openaire.eu/docs/apis/home) for a list
+of the different entities and their respective filters).
+
+In the following example, we query the “research-products” entity,
+requesting to return only the first record for the type “publication”.
+By looking at the header of the server’s response, we can know how many
+“publications” the database contains.
 
 ``` r
 library(oaire)
-## basic example code
+
+# Get the the first record of the research product type "publication"
+n_pub <- oag_query(
+  entity = "research-products",
+  type = "publication",
+  options = oag_options(page = 1, pageSize = 1)
+) |>
+  oag_request()
+
+# Print the number of records available in the response's header
+n_pub[["header"]][["numFound"]]
+#> [1] 237316015
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+Maybe we are interested in dataset that were published on 15 January
+2026:
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+# Get the the first record of the research product type "publication", published
+# on 15 January 2026.
+n_pub_2026_15_01 <- oag_query(
+  entity = "research-products",
+  type = "dataset",
+  fromPublicationDate = "2026-01-15",
+  toPublicationDate = "2026-01-15",
+  options = oag_options(page = 1, pageSize = 1)
+) |>
+  oag_request()
+
+# Print the number of records available in the response's header
+n_pub_2026_15_01[["header"]][["numFound"]]
+#> [1] 1648
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
+The results from the last query shows that the number of records is
+reasonable enough to consider using paging to fetch in a single call all
+the data related to the datasets published on 15 January 2026. In the
+example below, we use offset-based paging, setting the number of records
+returned per page to 100 (the maximum allowed by the OpenAIRE Graph
+API):
 
-You can also embed plots, for example:
+``` r
+# Fetch data for datasets published on 15 January 2026, sorted by descending
+# date of publication, using offset-based-paging with 100 records per page.
+datasets_2026_15_01_offset <- oag_fetch(
+  entity = "research-products",
+  type = "dataset",
+  fromPublicationDate = "2026-01-15",
+  toPublicationDate = "2026-01-15",
+  options = oag_options(sortBy = c(publicationDate = "DESC"), pageSize = 100)
+)
+```
 
-<img src="man/figures/README-pressure-1.png" alt="" width="100%" />
+Offset-based paging is limited to small dataset of 10’000 records
+maximum, with the numbers of records being defined by the product of the
+`size` and `pageSize` options. When the dataset is larger than 10’000
+records, cursor-based paging should be used. The example above can be
+reproduced using cursor-based paging by setting `cursor = TRUE` in
+`oag_options()`:
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+``` r
+# Fetch data for datasets published on 15 January 2026, sorted by descending
+# date of publication, using cursor-based-paging with 100 records per page.
+datasets_2026_15_01_cursor <- oag_fetch(
+  entity = "research-products",
+  type = "dataset",
+  fromPublicationDate = "2026-01-15",
+  toPublicationDate = "2026-01-15",
+  options = oag_options(
+    sortBy = c(publicationDate = "DESC"),
+    pageSize = 100,
+    cursor = TRUE
+  )
+)
+```
+
+More complex queries can be constructed using logical operators. For
+example, we could search for software in addition to datasets by
+combining the two types with an “OR” logical operator:
+`"dataset" OR "software"`. However, the OpenAIRE Graph API requires that
+values used with logical operators are wrapped with double quotes, which
+requires to escape them when creating the string passed to the “type”
+filter: `type = "\"dataset\" OR \"software\""`. To reduce the
+inconvenience, `oaire` provides a family of concatenation functions
+allowing to add “AND” (`concat_and()`), “OR” (`concat_or()`), and “NOT”
+(`concat_not()`) logical operators.
+
+In the next example, we create a filter to find any “dataset” or
+“software” research product type, and use it to fetch data from the
+OpenAIRE Graph API.
+
+``` r
+# Concatenate the strings "dataset" and "software" with "OR"
+ds_and_soft <- concat_or("dataset", "software")
+
+# We fetch the data using the `ds_and_soft` string passed to the "type" filter
+ds_or_soft_2026_15_01 <- oag_query(
+  entity = "research-products",
+  type = ds_and_soft,
+  options = oag_options(page = 1, pageSize = 1)
+) |>
+  oag_request()
+
+# Print the number of records available in the response's header
+ds_or_soft_2026_15_01[["header"]][["numFound"]]
+#> [1] 107509471
+```
+
+Since there are only four types of research products, we can also negate
+the two others to get the same results.
+
+``` r
+# Concatenate the strings "publication" and "other" with "OR" and negate it
+not_others_or_pub <- concat_not(concat_or("publication", "other"))
+
+# We fetch the data using the `not_others_or_pub` string passed to the "type"
+# filter.
+not_pub_or_other_2026_15_01 <- oag_query(
+  entity = "research-products",
+  type = ds_and_soft,
+  options = oag_options(page = 1, pageSize = 1)
+) |>
+  oag_request()
+
+# Print the number of records available in the response's header
+not_pub_or_other_2026_15_01[["header"]][["numFound"]]
+#> [1] 107509471
+```
