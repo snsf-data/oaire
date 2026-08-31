@@ -4,14 +4,14 @@
 \alias{fmt_opt_page_size}
 \title{Check and format the "pageSize" option passed to \code{oag_set_options()}}
 \usage{
-fmt_opt_page_size(pageSize, .call)
+fmt_opt_page_size(pageSize, call)
 }
 \arguments{
 \item{pageSize}{A positive integer indicating the number of records per page
 a query should return. The OpenAIRE Graph API has a limit of 100 records per
 page.}
 
-\item{.call}{The caller environment passed to \code{cli::cli_abort()}.}
+\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string following OpenAIRE Graph API documentation that can be

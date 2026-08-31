@@ -4,7 +4,7 @@
 \alias{sorting_error_msg}
 \title{Compose an error message for sorting option issues with pre-formatted help}
 \usage{
-sorting_error_msg(msg, .call = rlang::current_env())
+sorting_error_msg(msg, call = rlang::current_env())
 }
 \arguments{
 \item{msg}{A string with the message to add to the pre-formatted error

@@ -4,7 +4,7 @@
 \alias{fmt_opt_cursor}
 \title{Check and format the "cursor" option passed to \code{oag_set_options()}}
 \usage{
-fmt_opt_cursor(cursor, is_cursor_next = FALSE, .call)
+fmt_opt_cursor(cursor, is_cursor_next = FALSE, call)
 }
 \arguments{
 \item{cursor}{A logical indicating whether to use cursor-based paging when
@@ -16,7 +16,7 @@ cannot be used simultaneously.}
 \code{oag_fetch()} to indicate whether the \code{cursor} argument must be interpreted
 as the method to use ("cursor-based paging") or as the next cursor.}
 
-\item{.call}{The caller environment passed to \code{cli::cli_abort()}.}
+\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string following OpenAIRE Graph API documentation that can be

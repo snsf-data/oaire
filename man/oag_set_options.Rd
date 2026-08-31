@@ -12,7 +12,7 @@ oag_set_options(
   page = NULL,
   cursor = NULL,
   is_cursor_next = FALSE,
-  .call = rlang::caller_env()
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -45,6 +45,8 @@ cannot be used simultaneously.}
 \item{is_cursor_next}{\strong{Do not use this argument}. It is used internally by
 \code{oag_fetch()} to indicate whether the \code{cursor} argument must be interpreted
 as the method to use ("cursor-based paging") or as the next cursor.}
+
+\item{call}{The caller environment passed to \code{cli::cli_abort()}.}
 }
 \value{
 A string with options requirements formatted according to the
