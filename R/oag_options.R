@@ -75,6 +75,7 @@ oag_options <- function(
 #'
 #' @inheritParams oag_options
 #' @inheritParams oag_api_url
+#' @param call The caller environment passed to `cli::cli_abort()`.
 #'
 #' @returns A string with options requirements formatted according to the
 #' OpenAIRE Graph API's documentation.
@@ -431,7 +432,7 @@ get_sorting_fields <- function(entity) {
 #'
 #' @param msg A string with the message to add to the pre-formatted error
 #' message.
-#' @param call The caller environment passed to `cli::cli_abort()`.
+#' @inheritParams oag_set_options
 #'
 #' @returns Nothing, use for side-effect only.
 #' @export
