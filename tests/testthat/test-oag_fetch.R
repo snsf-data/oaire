@@ -722,48 +722,91 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
     oag_fetch(entity = "datasource"),
     "`entity`.+must.+be.+one.+of.+"
   )
-  expect_error(
-    oag_fetch(list()),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(list("a")),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(TRUE),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(NULL),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-  expect_error(
-    oag_fetch(NA),
-    "The.+query.+must.+be.+an.+object.+of.+class.+`oag_query`.+"
-  )
-
-  skip_if_offline()
 
   expect_error(oag_fetch("invalid_string"))
   expect_error(
-    oag_fetch(oag_query("research-products", oag_test = "oag_test")),
+    oag_fetch(
+      "research-products",
+      oag_test = "oag_test",
+      options = oag_options(page = 1)
+    ),
     "Unknown.+parameter.+oag_test"
   )
   expect_error(
-    oag_fetch(oag_query("organizations", oag_test = "oag_test")),
+    oag_fetch(
+      "research-products",
+      oag_test = "oag_test",
+      options = oag_options(page = 1),
+      token = oag_api_token(refresh_token = "", token = "")
+    ),
     "Unknown.+parameter.+oag_test"
   )
   expect_error(
-    oag_fetch(oag_query("datasources", oag_test = "oag_test")),
+    oag_fetch(
+      "organizations",
+      oag_test = "oag_test",
+      options = oag_options(page = 1)
+    ),
     "Unknown.+parameter.+oag_test"
   )
   expect_error(
-    oag_fetch(oag_query("projects", oag_test = "oag_test")),
+    oag_fetch(
+      "organizations",
+      oag_test = "oag_test",
+      options = oag_options(page = 1),
+      token = oag_api_token(refresh_token = "", token = "")
+    ),
     "Unknown.+parameter.+oag_test"
   )
   expect_error(
-    oag_fetch(oag_query("persons", oag_test = "oag_test")),
+    oag_fetch(
+      "datasources",
+      oag_test = "oag_test",
+      options = oag_options(page = 1)
+    ),
+    "Unknown.+parameter.+oag_test"
+  )
+  expect_error(
+    oag_fetch(
+      "datasources",
+      oag_test = "oag_test",
+      options = oag_options(page = 1),
+      token = oag_api_token(refresh_token = "", token = "")
+    ),
+    "Unknown.+parameter.+oag_test"
+  )
+  expect_error(
+    oag_fetch(
+      "projects",
+      oag_test = "oag_test",
+      options = oag_options(page = 1)
+    ),
+    "Unknown.+parameter.+oag_test"
+  )
+  expect_error(
+    oag_fetch(
+      "projects",
+      oag_test = "oag_test",
+      options = oag_options(page = 1),
+      token = oag_api_token(refresh_token = "", token = "")
+    ),
+    "Unknown.+parameter.+oag_test"
+  )
+  expect_error(
+    oag_fetch(
+      "persons",
+      oag_test = "oag_test",
+      options = oag_options(page = 1)
+    ),
+    "Unknown.+parameter.+oag_test"
+  )
+  expect_error(
+    oag_fetch(
+      "persons",
+      oag_test = "oag_test",
+      options = oag_options(page = 1),
+      token = oag_api_token(refresh_token = "", token = "")
+    ),
     "Unknown.+parameter.+oag_test"
   )
 })
