@@ -213,9 +213,9 @@ oag_fetch <- function(
   if (!is.null(options[["page"]])) {
     res <- oag_request(oag_query(entity, ..., options = options), token = token)
   } else {
-    # Here we will use paging. To know how many records (and thus pages) have to
-    # be accessed, we make a dry run with the filters passed by the user but
-    # for a single page of size 1 so we can retrieve the numbers of records.
+    # Else, we use paging. To know how many records (and thus pages) have to be
+    # accessed, we make a dry run with the filters passed by the user but for a
+    # single page of size 1 so we can retrieve the numbers of records.
     query_1_n <- oag_query(
       entity = entity,
       ...,
