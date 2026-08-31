@@ -91,8 +91,8 @@ concat_and_or <- function(..., operator) {
   # vector. In that case, the argument is accepted and continue.
   if (
     length(args) == 1 &&
-    rlang::is_bare_character(args[[1]]) &&
-    rlang::is_bare_vector(args[[1]])
+      rlang::is_bare_character(args[[1]]) &&
+      rlang::is_bare_vector(args[[1]])
   ) {
     args <- args[[1]]
   }
