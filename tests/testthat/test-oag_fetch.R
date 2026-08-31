@@ -814,53 +814,155 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
 ## Success ----
 
 test_that("oag_fetch() is successful when query is correctly formatted", {
-  skip_if_offline()
-
-  expect_no_error(
-    oag_query(
-      "research-products",
-      type = "Publication",
-      options = oag_options(sortBy = c(relevance = "ASC"))
-    )
+  options <- oag_options(
+    sortBy = c(relevance = "ASC"),
+    page = 1,
+    pageSize = 1
   )
 
-  expect_no_error(
-    oag_fetch(
-      oag_query(
-        "organizations",
-        countryCode = "CH",
-        options = oag_options(sortBy = c(relevance = "ASC"))
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch("research-products", type = "publication", options = options)
       )
-    )
+    ),
+    0
+  )
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_request(
+          oag_query(
+            "research-products",
+            type = "publication",
+            options = options
+          )
+        )
+      )
+    ),
+    0
   )
 
-  expect_no_error(
-    oag_fetch(
-      oag_query(
-        "datasources",
-        thematic = "true",
-        options = oag_options(sortBy = c(relevance = "ASC"))
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch("organizations", countryCode = "CH", options = options)
       )
-    )
+    ),
+    0
+  )
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_request(
+          oag_query("organizations", countryCode = "CH", options = options)
+        )
+      )
+    ),
+    0
   )
 
-  expect_no_error(
-    oag_fetch(
-      oag_query(
-        "projects",
-        fundingShortName = "SNSF",
-        options = oag_options(sortBy = c(relevance = "ASC"))
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch("datasources", thematic = "true", options = options)
       )
-    )
+    ),
+    0
+  )
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_request(
+          oag_query("datasources", thematic = "true", options = options)
+        )
+      )
+    ),
+    0
   )
 
-  expect_no_error(
-    oag_fetch(
-      oag_query(
-        "persons",
-        originalId = "0000-0001-7462-0446",
-        options = oag_options(sortBy = c(relevance = "ASC"))
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch("projects", fundingShortName = "SNSF", options = options)
       )
-    )
+    ),
+    0
+  )
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_request(
+          oag_query("projects", fundingShortName = "SNSF", options = options)
+        )
+      )
+    ),
+    0
+  )
+
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch(
+          "persons",
+          originalId = "0000-0001-7462-0446",
+          options = options
+        )
+      )
+    ),
+    0
+  )
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_request(
+          oag_query(
+            "persons",
+            originalId = "0000-0001-7462-0446",
+            options = options
+          )
+        )
+      )
+    ),
+    0
+  )
+
+  options[["cursor"]] <- TRUE
+  options[["page"]] <- NULL
+  options[["pageSize"]] <- 100
+
+  # Cursor-based paging
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch(
+          "research-products",
+          type = "publication",
+          relProjectFundingShortName = "SNSF",
+          fromPublicationDate = "2020-12-15",
+          toPublicationDate = "2020-12-31",
+          options = options
+        )
+      )
+    ),
+    1
+  )
+
+  options[["cursor"]] <- NULL
+  # Offset-based paging
+  expect_gt(
+    length(
+      expect_no_error(
+        oag_fetch(
+          "research-products",
+          type = "publication",
+          relProjectFundingShortName = "SNSF",
+          fromPublicationDate = "2020-12-15",
+          toPublicationDate = "2020-12-31",
+          options = options
+        )
+      )
+    ),
+    1
   )
 })
