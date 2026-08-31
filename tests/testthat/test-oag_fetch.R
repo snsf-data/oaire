@@ -972,6 +972,32 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
     ),
     1
   )
+
+  fetch_offset <- oag_fetch(
+    "research-products",
+    type = "dataset",
+    search = concat_and("working", "memory", "model"),
+    options = oag_options(sortBy = c(publicationDate = "DESC"), pageSize = 100)
+  )
+
+  fetch_cursor <- oag_fetch(
+    "research-products",
+    type = "dataset",
+    search = concat_and("working", "memory", "model"),
+    options = oag_options(
+      sortBy = c(publicationDate = "DESC"),
+      pageSize = 100,
+      cursor = TRUE
+    )
+  )
+
+  expect_identical(length(fetch_offset), length(fetch_cursor))
+
+  offset_ids <- sort(unlist(lapply(fetch_offset, \(x) x$id)))
+  cursor_ids <- sort(unlist(lapply(fetch_cursor, \(x) x$id)))
+
+  expect_identical(offset_ids, cursor_ids)
+
 })
 
 # Tests for URL format in `oag_request()` --------------------------------------
