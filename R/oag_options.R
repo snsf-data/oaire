@@ -88,7 +88,7 @@ oag_set_options <- function(
   page = NULL,
   cursor = NULL,
   is_cursor_next = FALSE,
-  .call = rlang::caller_env()
+  call = rlang::caller_env()
 ) {
   # Get the environment of the calling function to allow associating errors
   # with the calling function.
@@ -96,11 +96,11 @@ oag_set_options <- function(
   entity <- rlang::arg_match(entity, oag_entities())
 
   # Check and format all the options included in the function
-  sortBy_str <- fmt_opt_sorting(sortBy, entity, .call)
-  includeStats_str <- fmt_opt_stats(includeStats, .call)
-  pageSize_str <- fmt_opt_page_size(pageSize, .call)
-  page_str <- fmt_opt_page(page, .call)
-  cursor_str <- fmt_opt_cursor(cursor, is_cursor_next, .call)
+  sortBy_str <- fmt_opt_sorting(sortBy, entity, call)
+  includeStats_str <- fmt_opt_stats(includeStats, call)
+  pageSize_str <- fmt_opt_page_size(pageSize, call)
+  page_str <- fmt_opt_page(page, call)
+  cursor_str <- fmt_opt_cursor(cursor, is_cursor_next, call)
 
   # Check that offset- and cursor-based paging having not been both set
   if (!is.null(page) && (!is.null(cursor) && cursor)) {
@@ -118,7 +118,7 @@ oag_set_options <- function(
           "(default)."
         )
       ),
-      call = .call
+      call = call
     )
   }
 
@@ -138,7 +138,7 @@ oag_set_options <- function(
           "records ({.arg page} * {.arg pageSize})."
         )
       ),
-      call = .call
+      call = call
     )
   }
 
@@ -163,7 +163,7 @@ oag_set_options <- function(
 #'
 #' @keywords internal
 
-fmt_opt_sorting <- function(sortBy, entity, .call) {
+fmt_opt_sorting <- function(sortBy, entity, call) {
   sorting_formatted <- NULL
 
   if (!is.null(sortBy)) {
@@ -173,7 +173,7 @@ fmt_opt_sorting <- function(sortBy, entity, .call) {
           "In the list of options, the object passed to {.arg sortBy} must be ",
           "a character vector or NULL to use OpenAIRE Graph API's default."
         ),
-        .call = .call
+        call = call
       )
     }
     if (!rlang::is_named(sortBy)) {
@@ -182,7 +182,7 @@ fmt_opt_sorting <- function(sortBy, entity, .call) {
           "In the list of options, the character vector passed to ",
           "{.arg sortBy} must be named."
         ),
-        .call = .call
+        call = call
       )
     }
     if (!all(sortBy %in% c("ASC", "DESC"))) {
@@ -192,7 +192,7 @@ fmt_opt_sorting <- function(sortBy, entity, .call) {
           "can only contain \"ASC\" (ascending) or \"DESC\" (descending) ",
           "as input."
         ),
-        .call = .call
+        call = call
       )
     }
 
@@ -231,7 +231,7 @@ fmt_opt_sorting <- function(sortBy, entity, .call) {
 #'
 #' @keywords internal
 
-fmt_opt_stats <- function(includeStats, .call) {
+fmt_opt_stats <- function(includeStats, call) {
   if (!is.null(includeStats)) {
     if (!rlang::is_scalar_logical(includeStats) || anyNA(includeStats)) {
       cli::cli_abort(
@@ -239,7 +239,7 @@ fmt_opt_stats <- function(includeStats, .call) {
           "In the list of options, {.var includeStats} must be a logical ",
           "scalar or NULL to use OpenAIRE Graph API's default."
         ),
-        call = .call
+        call = call
       )
     } else if (includeStats) {
       includeStats <- "includeStats=true"
@@ -263,7 +263,7 @@ fmt_opt_stats <- function(includeStats, .call) {
 #'
 #' @keywords internal
 
-fmt_opt_page_size <- function(pageSize, .call) {
+fmt_opt_page_size <- function(pageSize, call) {
   if (!is.null(pageSize)) {
     if (!rlang::is_scalar_integerish(pageSize) || pageSize < 1) {
       cli::cli_abort(
@@ -271,10 +271,10 @@ fmt_opt_page_size <- function(pageSize, .call) {
           "In the list of options, {.var pageSize} must be a scalar positive ",
           "integer or NULL to use OpenAIRE Graph API's default."
         ),
-        call = .call
+        call = call
       )
     } else if (pageSize > 100) {
-      cli::cli_abort("{.var pageSize} cannot exceed 100.", call = .call)
+      cli::cli_abort("{.var pageSize} cannot exceed 100.", call = call)
     } else {
       pageSize <- paste0("pageSize=", pageSize)
     }
@@ -295,7 +295,7 @@ fmt_opt_page_size <- function(pageSize, .call) {
 #'
 #' @keywords internal
 
-fmt_opt_page <- function(page, .call) {
+fmt_opt_page <- function(page, call) {
   if (!is.null(page)) {
     if (!rlang::is_scalar_integerish(page) || page < 1) {
       cli::cli_abort(
@@ -303,7 +303,7 @@ fmt_opt_page <- function(page, .call) {
           "In the list of options, {.var page} must be a scalar positive ",
           "integer or NULL to use OpenAIRE Graph API's default."
         ),
-        call = .call
+        call = call
       )
     } else {
       # Avoid R coercing large number to scientific notation when pasting them
@@ -326,7 +326,7 @@ fmt_opt_page <- function(page, .call) {
 #'
 #' @keywords internal
 
-fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
+fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, call) {
   # Coerce `is_cursor_next` to FALSE if NULL
   if (is.null(is_cursor_next)) {
     is_cursor_next <- FALSE
@@ -339,7 +339,7 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
   ) {
     cli::cli_abort(
       "In the list of options, {.var is_cursor_next} must be a logical scalar.",
-      call = .call
+      call = call
     )
   }
 
@@ -350,7 +350,7 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
         "In the list of options, {.var is_cursor_next} cannot be set to ",
         "`TRUE` without passing a string to {.arg cursor}."
       ),
-      call = .call
+      call = call
     )
   }
   if (!is.null(cursor)) {
@@ -362,7 +362,7 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
           "In the list of options, {.var cursor} must be a logical scalar or ",
           "NULL to use OpenAIRE Graph API's default."
         ),
-        call = .call
+        call = call
       )
     } else if (
       (!rlang::is_scalar_character(cursor) || anyNA(cursor)) && is_cursor_next
@@ -372,7 +372,7 @@ fmt_opt_cursor <- function(cursor, is_cursor_next = FALSE, .call) {
           "In the list of options, {.var cursor} must be a bare string when ",
           "{.var is_cursor_next} is set to `TRUE`."
         ),
-        call = .call
+        call = call
       )
     } else if (is_cursor_next) {
       cursor <- paste0("cursor=", cursor)
@@ -436,7 +436,7 @@ get_sorting_fields <- function(entity) {
 #' @returns Nothing, use for side-effect only.
 #' @export
 
-sorting_error_msg <- function(msg, .call = rlang::current_env()) {
+sorting_error_msg <- function(msg, call = rlang::current_env()) {
   cli::cli_abort(
     c(
       msg,
@@ -454,6 +454,6 @@ sorting_error_msg <- function(msg, .call = rlang::current_env()) {
         "{.code oag_options(sortBy=c(relevance=\"ASC\"))}"
       )
     ),
-    call = .call
+    call = call
   )
 }
