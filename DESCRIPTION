@@ -1,7 +1,7 @@
 Type: Package
 Package: oaire
 Title: R interface to the openAIRE graph API
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Simon", "Gorin", , "github.com.darkness667@passmail.net", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7462-0446"))
