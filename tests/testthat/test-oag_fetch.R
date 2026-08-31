@@ -724,6 +724,10 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
   )
 
   expect_error(oag_fetch("invalid_string"))
+  skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
+
+  skip_on_cran()
+
   expect_error(
     oag_fetch(
       "research-products",
@@ -814,6 +818,9 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
 ## Success ----
 
 test_that("oag_fetch() is successful when query is correctly formatted", {
+  skip_on_cran()
+  skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
+
   options <- oag_options(
     sortBy = c(relevance = "ASC"),
     page = 1,
