@@ -33,7 +33,7 @@ associated to a specific query.
 You can install the development version of `oaire` like so:
 
 ``` r
-devtools::install(gorinsimon/oaire)
+devtools::install("snsf-data/oaire")
 ```
 
 ## Authenticated request
@@ -90,7 +90,7 @@ n_pub <- oag_query(
 
 # Print the number of records available in the response's header
 n_pub[["header"]][["numFound"]]
-#> [1] 237316015
+#> [1] 238468120
 ```
 
 Maybe we are interested in dataset that were published on 15 January
@@ -110,7 +110,7 @@ n_pub_2026_15_01 <- oag_query(
 
 # Print the number of records available in the response's header
 n_pub_2026_15_01[["header"]][["numFound"]]
-#> [1] 1648
+#> [1] 1674
 ```
 
 The results from the last query shows that the number of records is
@@ -184,7 +184,7 @@ ds_or_soft_2026_15_01 <- oag_query(
 
 # Print the number of records available in the response's header
 ds_or_soft_2026_15_01[["header"]][["numFound"]]
-#> [1] 107509471
+#> [1] 109209854
 ```
 
 Since there are only four types of research products, we can also negate
@@ -205,5 +205,5 @@ not_pub_or_other_2026_15_01 <- oag_query(
 
 # Print the number of records available in the response's header
 not_pub_or_other_2026_15_01[["header"]][["numFound"]]
-#> [1] 107509471
+#> [1] 109209854
 ```

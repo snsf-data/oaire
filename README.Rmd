@@ -37,7 +37,7 @@ The advantage of using `oag_fetch()` is that it handles paging automatically. `o
 You can install the development version of `oaire` like so:
 
 ``` r
-devtools::install(gorinsimon/oaire)
+devtools::install("snsf-data/oaire")
 ```
 
 ## Authenticated request
