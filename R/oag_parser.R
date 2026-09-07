@@ -82,6 +82,8 @@ parse_research_products <- function(
     organizations = "parse_organizations",
     communities = "parse_communities",
     collectedFrom = "parse_collected_from",
+    # Specific to publications
+    container = "parse_container",
     # Specific to data sources
     size = "parse_string",
     version = "parse_string",
@@ -625,4 +627,3 @@ null_to_na <- function(x, na_type = NA_character_) {
     lapply(x, \(y) y %||% na_type)
   }
 }
-
