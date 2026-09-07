@@ -298,3 +298,22 @@ parse_container <- function(res, var = "container") {
     )
   }
 }
+
+#==============================================================================|
+#                               ---- Helpers ----
+#==============================================================================|
+
+#' @keywords internal
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
+#' @keywords internal
+null_to_na <- function(x, na_type = NA_character_) {
+  if (is.null(x)) {
+    NULL
+  } else {
+    lapply(x, \(y) y %||% na_type)
+  }
+}
+
