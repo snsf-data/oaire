@@ -85,7 +85,7 @@ parse_research_products <- function(
     # Specific to data sources
     size = "parse_string",
     version = "parse_string",
-    geolocations = "parse_geolocations",
+    geoLocations = "parse_geo_locations",
     # Specific to software
     documentationUrls = "parse_list",
     codeRepositoryUrl = "parse_string",
@@ -184,7 +184,7 @@ parse_pids <- function(res, var = "pids") {
 }
 
 #' @keywords internal
-parse_geolocations <- function(res, var = "geolocations") {
+parse_geo_locations <- function(res, var = "geoLocations") {
   if (is.null(res[[var]])) {
     NULL
   } else {
@@ -530,7 +530,7 @@ init_res_prod_df <- function(
     rp_pub_df <- tibble::tribble(~container)
     rp_df <- tibble::add_column(rp_df, rp_pub_df)
   } else if (type == "dataset") {
-    rp_data_df <- tibble::tribble(~size, ~version, ~geolocations)
+    rp_data_df <- tibble::tribble(~size, ~version, ~geoLocations)
     rp_df <- tibble::add_column(rp_df, rp_data_df)
   } else if (type == "software") {
     rp_soft_df <- tibble::tribble(
