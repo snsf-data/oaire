@@ -1,4 +1,135 @@
 #==============================================================================|
+#                           ---- Object parsers ----
+#==============================================================================|
+
+#' Parse the research products objects
+#'
+#' @param prod A list with research products objects as returned by
+#' `oag_fetch()` or `oag_request()`.
+#' @param type A string with the type of research product contained in `prod`
+#' @param selection A character vector with the variables to select in the
+#' research product object passed to `prod`.
+#'
+#' @returns A tibble with the parsed research products.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Fetch some data from the OpenAIRE Graph
+#' res_prod <-  oag_fetch(
+#'   "research-products",
+#'   type = "publication",
+#'   relProjectFundingShortName = "SNSF",
+#'   fromPublicationDate = "2023-01-01",
+#'   toPublicationDate = "2023-01-31",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned research products objects
+#' res_prod_df <- parse_research_products(res_prod, type = "publication")
+#' }
+
+parse_research_products <- function(
+  prod,
+  type = c("publication", "data", "software", "other"),
+  selection = NULL
+) {
+  type <- rlang::arg_match(type, c("publication", "data", "software", "other"))
+  # Initiate an empty table with the variable of the research product type
+  # already set.
+  res_prod_df <- init_res_prod_df(type, selection)
+
+  if (is.null(selection)) {
+    # Only keep the variable to parse that are in "selection"
+    selection <- colnames(res_prod_df)
+  }
+
+  # Named vector where the names are the research product variables and the
+  # value their corresponding parser.
+  vars_with_fn <- c(
+    # Common variables
+    id = "parse_string",
+    type = "parse_string",
+    originalIds = "parse_list",
+    mainTitle = "parse_string",
+    subTitle = "parse_string",
+    authors = "parse_authors",
+    bestAccessRight = "parse_best_access_right",
+    contributors = "parse_list",
+    countries = "parse_countries",
+    coverages = "parse_list",
+    dateOfCollection = "parse_datetime",
+    descriptions = "parse_list",
+    embargoEndDate = "parse_date",
+    indicators = "parse_indicators",
+    instances = "parse_instances",
+    language = "parse_list",
+    lastUpdateTimeStamp = "parse_string",
+    pids = "parse_pids",
+    publicationDate = "parse_date",
+    publisher = "parse_string",
+    sources = "parse_list",
+    formats = "parse_list",
+    subjects = "parse_subjects",
+    isGreen = "parse_bool",
+    openAccessColor = "parse_string",
+    isInDiamondJournal = "parse_bool",
+    publiclyFunded = "parse_bool",
+    projects = "parse_projects",
+    organizations = "parse_organizations",
+    communities = "parse_communities",
+    collectedfrom = "parse_collected_from",
+    # Specific to data sources
+    size = "parse_string",
+    version = "parse_string",
+    geolocations = "parse_geolocations",
+    # Specific to software
+    documentationUrls = "parse_list",
+    codeRepositoryUrl = "parse_string",
+    programmingLanguage = "parse_string",
+    # Specific to other
+    contactPeople = "parse_list",
+    contactGroups = "parse_list",
+    tools = "parse_list"
+  )
+
+  # Only keep the variable to parse that are in "selection"
+  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
+
+  # Initiate a progress bar for the data parsing process
+  cli::cli_progress_bar(
+    total = length(prod),
+    type = "custom",
+    format = paste0(
+      "{cli::pb_spin} Parsed {cli::pb_current} work(?s) out of {length(prod)}... ",
+      "{cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+    )
+  )
+
+  # Loop over each element in `prod`
+  for (i in seq_along(prod)) {
+    cli::cli_progress_update(set = i)
+
+    # Go over all variables to parse and extract structured data from the raw
+    # data.
+    parsed_vars <- lapply(names(vars_with_fn), \(x) {
+      do.call(vars_with_fn[[x]], list(res = prod[[i]], var = x))
+    }) |>
+      # Make sure that set to list any data not being a scalar
+      lapply(\(x) ifelse(rlang::is_scalar_atomic(x), x, list(x)))
+    names(parsed_vars) <- names(vars_with_fn)
+
+    # Turn the list of parsed data into a tibble and bind it to the tibble with
+    # the already parsed data.
+    vars_df <- tibble::as_tibble(parsed_vars)
+    res_prod_df <- rbind(res_prod_df, vars_df)
+  }
+  cli::cli_progress_done()
+
+  res_prod_df
+}
+
+#==============================================================================|
 #                          ---- Variable parsers ----
 #==============================================================================|
 
