@@ -30,10 +30,12 @@ associated to a specific query.
 
 ## Installation
 
-You can install the development version of `oaire` like so:
+You can install the latest or development version of `oaire` like so:
 
 ``` r
-devtools::install("snsf-data/oaire")
+# install.packages("pak")
+pak::pak("snsf-data/oaire@v0.0.1") # latest version
+pak::pak("snsf-data/oaire") # development version
 ```
 
 ## Authenticated request
@@ -90,7 +92,7 @@ n_pub <- oag_query(
 
 # Print the number of records available in the response's header
 n_pub[["header"]][["numFound"]]
-#> [1] 238468120
+#> [1] 238495846
 ```
 
 Maybe we are interested in dataset that were published on 15 January
@@ -184,7 +186,7 @@ ds_or_soft_2026_15_01 <- oag_query(
 
 # Print the number of records available in the response's header
 ds_or_soft_2026_15_01[["header"]][["numFound"]]
-#> [1] 109209854
+#> [1] 109218648
 ```
 
 Since there are only four types of research products, we can also negate
@@ -205,5 +207,5 @@ not_pub_or_other_2026_15_01 <- oag_query(
 
 # Print the number of records available in the response's header
 not_pub_or_other_2026_15_01[["header"]][["numFound"]]
-#> [1] 109209854
+#> [1] 109218648
 ```

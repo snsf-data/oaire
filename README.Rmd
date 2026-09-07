@@ -34,10 +34,12 @@ The advantage of using `oag_fetch()` is that it handles paging automatically. `o
 
 ## Installation
 
-You can install the development version of `oaire` like so:
+You can install the latest or development version of `oaire` like so:
 
 ``` r
-devtools::install("snsf-data/oaire")
+# install.packages("pak")
+pak::pak("snsf-data/oaire@v0.0.1") # latest version
+pak::pak("snsf-data/oaire") # development version
 ```
 
 ## Authenticated request
