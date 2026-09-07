@@ -81,7 +81,7 @@ parse_research_products <- function(
     projects = "parse_projects",
     organizations = "parse_organizations",
     communities = "parse_communities",
-    collectedfrom = "parse_collected_from",
+    collectedFrom = "parse_collected_from",
     # Specific to data sources
     size = "parse_string",
     version = "parse_string",
@@ -522,7 +522,7 @@ init_res_prod_df <- function(
     ~embargoEndDate, ~indicators, ~instances, ~language, ~lastUpdateTimeStamp,
     ~pids, ~publicationDate, ~publisher, ~sources, ~formats, ~subjects,
     ~isGreen, ~openAccessColor, ~isInDiamondJournal, ~publiclyFunded, ~projects,
-    ~organizations, ~communities, ~collectedfromdfrom
+    ~organizations, ~communities, ~collectedFrom
   )
 
   # Depending on the research product type, additional variables are added
