@@ -31,10 +31,13 @@
 
 parse_research_products <- function(
   prod,
-  type = c("publication", "data", "software", "other"),
+  type = c("publication", "dataset", "software", "other"),
   selection = NULL
 ) {
-  type <- rlang::arg_match(type, c("publication", "data", "software", "other"))
+  type <- rlang::arg_match(
+    type,
+    c("publication", "dataset", "software", "other")
+  )
   # Initiate an empty table with the variable of the research product type
   # already set.
   res_prod_df <- init_res_prod_df(type, selection)
@@ -504,10 +507,13 @@ parse_container <- function(res, var = "container") {
 #' @keywords internal
 
 init_res_prod_df <- function(
-  type = c("publication", "data", "software", "other"),
+  type = c("publication", "dataset", "software", "other"),
   selection = NULL
 ) {
-  type <- rlang::arg_match(type, c("publication", "data", "software", "other"))
+  type <- rlang::arg_match(
+    type,
+    c("publication", "dataset", "software", "other")
+  )
   # fmt: skip
   # Empty tibble with the variables common to all research product types
   rp_df <- tibble::tribble(
@@ -523,7 +529,7 @@ init_res_prod_df <- function(
   if (type == "publication") {
     rp_pub_df <- tibble::tribble(~container)
     rp_df <- tibble::add_column(rp_df, rp_pub_df)
-  } else if (type == "data") {
+  } else if (type == "dataset") {
     rp_data_df <- tibble::tribble(~size, ~version, ~geolocations)
     rp_df <- tibble::add_column(rp_df, rp_data_df)
   } else if (type == "software") {
