@@ -351,6 +351,56 @@ parse_country <- function(res, var = "country") {
     )
   }
 }
+
+#' @keywords internal
+parse_fundings <- function(res, var = "fundings") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          funder_id = x[["funder"]][["id"]] %||% NA_character_,
+          funder_shortname = x[["funder"]][["shortname"]] %||% NA_character_,
+          funder_name = x[["funder"]][["name"]] %||% NA_character_,
+          funder_jurisdiction_code = x[["funder"]][["jurisdiction"]][[
+            "code"
+          ]] %||%
+            NA_character_,
+          funder_jurisdiction_label = x[["funder"]][["jurisdiction"]][[
+            "label"
+          ]] %||%
+            NA_character_,
+          funder_pid = x[["funder"]][["pid"]] %||% NA_character_,
+          level0 = list(
+            tibble::tibble(
+              id = x[["level0"]][["id"]] %||% NA_character_,
+              description = x[["level0"]][["description"]] %||% NA_character_,
+              name = x[["level0"]][["name"]] %||% NA_character_
+            )
+          ),
+          level1 = list(
+            tibble::tibble(
+              id = x[["level1"]][["id"]] %||% NA_character_,
+              description = x[["level1"]][["description"]] %||% NA_character_,
+              name = x[["level1"]][["name"]] %||% NA_character_
+            )
+          ),
+          level2 = list(
+            tibble::tibble(
+              id = x[["level2"]][["id"]] %||% NA_character_,
+              description = x[["level2"]][["description"]] %||% NA_character_,
+              name = x[["level2"]][["name"]] %||% NA_character_
+            )
+          )
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
 #' @keywords internal
 parse_subjects <- function(res, var = "subjects") {
   if (is.null(res[[var]])) {
