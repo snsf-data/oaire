@@ -466,6 +466,49 @@ parse_proj_fundings <- function(res, var = "fundings") {
   }
 }
 
+#' @keywords internal
+parse_proj_funding <- function(res, var = "funding") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      funder_id = res[[var]][["funder"]][["id"]] %||% NA_character_,
+      funder_shortname = res[[var]][["funder"]][["shortname"]] %||% NA_character_,
+      funder_name = res[[var]][["funder"]][["name"]] %||% NA_character_,
+      funder_jurisdiction_code = res[[var]][["funder"]][["jurisdiction"]][[
+        "code"
+      ]] %||%
+        NA_character_,
+      funder_jurisdiction_label = res[[var]][["funder"]][["jurisdiction"]][[
+        "label"
+      ]] %||%
+        NA_character_,
+      funder_pid = res[[var]][["funder"]][["pid"]] %||% NA_character_,
+      level0 = list(
+        tibble::tibble(
+          id = res[[var]][["level0"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level0"]][["description"]] %||% NA_character_,
+          name = res[[var]][["level0"]][["name"]] %||% NA_character_
+        )
+      ),
+      level1 = list(
+        tibble::tibble(
+          id = res[[var]][["level1"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level1"]][["description"]] %||% NA_character_,
+          name = res[[var]][["level1"]][["name"]] %||% NA_character_
+        )
+      ),
+      level2 = list(
+        tibble::tibble(
+          id = res[[var]][["level2"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level2"]][["description"]] %||% NA_character_,
+          name = res[[var]][["level2"]][["name"]] %||% NA_character_
+        )
+      )
+    )
+  }
+}
+
   if (is.null(res[[var]])) {
     NULL
   } else {
@@ -776,7 +819,7 @@ init_proj_df <- function(selection = NULL) {
   # Empty tibble with the variables of the organizations entity
   proj_df <- tibble::tribble(
     ~id, ~code, ~acronym, ~title, ~callIdentifier, ~fundings, ~granted,
-    ~h2020Programmes, ~keywords, ~openAccessMandateForDataset,
+    ~h2020Programmes, ~funding, ~keywords, ~openAccessMandateForDataset,
     ~openAccessMandateForPublications, ~startDate, ~endDate, ~subjects,
     ~summary, ~websiteUrl
   )
