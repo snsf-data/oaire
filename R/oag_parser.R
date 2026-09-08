@@ -25,7 +25,7 @@
 #'   options = oag_options(pageSize = 100, cursor = TRUE)
 #' )
 #'
-#' # Parsing the returned research products objects
+#' # Parsing the returned research products object
 #' res_prod_df <- parse_research_products(res_prod, type = "publication")
 #'
 #' # Fetch some "organizations" data from the OpenAIRE Graph
@@ -35,8 +35,19 @@
 #'   options = oag_options(pageSize = 100, cursor = TRUE)
 #' )
 #'
-#' # Parsing the returned organizations objects
+#' # Parsing the returned organizations object
 #' res_org_df <- parse_entity_organizations(res_org)
+#'
+#' # Fetch some "projects" data from the OpenAIRE Graph
+#' res_proj <- oag_fetch(
+#'   "projects",
+#'   fundingShortName = "SNSF",
+#'   startYear = "2025",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned projects object
+#' res_proj_df <- parse_entity_projects(res_proj)
 #' }
 
 parse_research_products <- function(
@@ -226,6 +237,7 @@ parse_entity_organizations <- function(object, selection = NULL) {
   res_org_df
 }
 
+#' @rdname parse_research_products
 #' @export
 
 parse_entity_projects <- function(object, selection = NULL) {
