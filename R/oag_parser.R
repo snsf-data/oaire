@@ -4,18 +4,18 @@
 
 #' Parse the research products objects
 #'
-#' @param prod A list with research products objects as returned by
-#' `oag_fetch()` or `oag_request()`.
-#' @param type A string with the type of research product contained in `prod`
+#' @param object An OpenAIRE Graph object as returned by `oag_fetch()` or
+#' `oag_request()`.
+#' @param type A string with the type of research product contained in `object`
 #' @param selection A character vector with the variables to select in the
-#' research product object passed to `prod`.
+#' OpenAIRE Graph object passed to `object`.
 #'
-#' @returns A tibble with the parsed research products.
+#' @returns A tibble with the parsed object.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Fetch some data from the OpenAIRE Graph
+#' # Fetch some "research products" data from the OpenAIRE Graph
 #' res_prod <-  oag_fetch(
 #'   "research-products",
 #'   type = "publication",
@@ -27,10 +27,20 @@
 #'
 #' # Parsing the returned research products objects
 #' res_prod_df <- parse_research_products(res_prod, type = "publication")
+#'
+#' # Fetch some "organizations" data from the OpenAIRE Graph
+#' res_org <- oag_fetch(
+#'   "organizations",
+#'   countryCode = "CH",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned organizations objects
+#' res_org_df <- parse_entity_organizations(res_org)
 #' }
 
 parse_research_products <- function(
-  prod,
+  object,
   type = c("publication", "dataset", "software", "other"),
   selection = NULL
 ) {
@@ -103,22 +113,22 @@ parse_research_products <- function(
 
   # Initiate a progress bar for the data parsing process
   cli::cli_progress_bar(
-    total = length(prod),
+    total = length(object),
     type = "custom",
     format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} work(?s) out of {length(prod)}... ",
-      "{cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+      "{cli::pb_spin} Parsed {cli::pb_current} work(?s) out of  ",
+      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
     )
   )
 
-  # Loop over each element in `prod`
-  for (i in seq_along(prod)) {
+  # Loop over each element in `object`
+  for (i in seq_along(object)) {
     cli::cli_progress_update(set = i)
 
     # Go over all variables to parse and extract structured data from the raw
     # data.
     parsed_vars <- lapply(names(vars_with_fn), \(x) {
-      do.call(vars_with_fn[[x]], list(res = prod[[i]], var = x))
+      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
     }) |>
       # Make sure that set to list any data not being a scalar
       lapply(\(x) ifelse(rlang::is_scalar_atomic(x), x, list(x)))
@@ -134,6 +144,7 @@ parse_research_products <- function(
   res_prod_df
 }
 
+#' @rdname parse_research_products
 #' @export
 
 parse_entity_organizations <- function(object, selection = NULL) {
