@@ -2,32 +2,35 @@
 % Please edit documentation in R/oag_parser.R
 \name{parse_research_products}
 \alias{parse_research_products}
+\alias{parse_entity_organizations}
 \title{Parse the research products objects}
 \usage{
 parse_research_products(
-  prod,
+  object,
   type = c("publication", "dataset", "software", "other"),
   selection = NULL
 )
+
+parse_entity_organizations(object, selection = NULL)
 }
 \arguments{
-\item{prod}{A list with research products objects as returned by
-\code{oag_fetch()} or \code{oag_request()}.}
+\item{object}{An OpenAIRE Graph object as returned by \code{oag_fetch()} or
+\code{oag_request()}.}
 
-\item{type}{A string with the type of research product contained in \code{prod}}
+\item{type}{A string with the type of research product contained in \code{object}}
 
 \item{selection}{A character vector with the variables to select in the
-research product object passed to \code{prod}.}
+OpenAIRE Graph object passed to \code{object}.}
 }
 \value{
-A tibble with the parsed research products.
+A tibble with the parsed object.
 }
 \description{
 Parse the research products objects
 }
 \examples{
 \dontrun{
-# Fetch some data from the OpenAIRE Graph
+# Fetch some "research products" data from the OpenAIRE Graph
 res_prod <-  oag_fetch(
   "research-products",
   type = "publication",
@@ -39,5 +42,15 @@ res_prod <-  oag_fetch(
 
 # Parsing the returned research products objects
 res_prod_df <- parse_research_products(res_prod, type = "publication")
+
+# Fetch some "organizations" data from the OpenAIRE Graph
+res_org <- oag_fetch(
+  "organizations",
+  countryCode = "CH",
+  options = oag_options(pageSize = 100, cursor = TRUE)
+)
+
+# Parsing the returned organizations objects
+res_org_df <- parse_entity_organizations(res_org)
 }
 }
