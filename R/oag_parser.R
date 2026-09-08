@@ -622,6 +622,20 @@ parse_authors <- function(res, var = "authors") {
   }
 }
 
+
+#' @keywords internal
+parse_granted <- function(res, var = "granted") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      currency = res[[var]][["currency"]] %||% NA_integer_,
+      fundedAmount = res[[var]][["fundedAmount"]] %||% NA_integer_,
+      totalCost = res[[var]][["totalCost"]] %||% NA_integer_
+    )
+  }
+}
+
 #' @keywords internal
 parse_h2020 <- function(res, var = "h2020Programmes") {
   if (is.null(res[[var]])) {
