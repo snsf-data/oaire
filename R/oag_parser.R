@@ -445,7 +445,27 @@ parse_country <- function(res, var = "country") {
 }
 
 #' @keywords internal
-parse_fundings <- function(res, var = "fundings") {
+parse_proj_fundings <- function(res, var = "fundings") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          fundingStream_description = x[["fundingStream"]][["description"]] %||%
+            NA_character_,
+          fundingStream_id = x[["fundingStream"]][["id"]] %||% NA_character_,
+          jurisdiction = x[["jurisdiction"]] %||% NA_character_,
+          name = x[["name"]] %||% NA_character_,
+          shortName = x[["shortName"]] %||% NA_real_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
   if (is.null(res[[var]])) {
     NULL
   } else {
