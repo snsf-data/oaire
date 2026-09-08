@@ -582,7 +582,8 @@ init_orgs_df <- function(selection = NULL) {
   # fmt: skip
   # Empty tibble with the variables of the organizations entity
   orgs_df <- tibble::tribble(
-    ~id, ~legalName, ~alternativeNames, ~websiteUrl, ~country, ~pids
+    ~id, ~legalShortName, ~legalName, ~alternativeNames, ~websiteUrl, ~country,
+    ~pids, ~originalIds, ~fundings, ~collectedFrom
   )
   if (!is.null(selection)) {
     orgs_df <- orgs_df[, colnames(orgs_df) %in% selection]
