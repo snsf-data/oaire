@@ -177,7 +177,7 @@ parse_entity_organizations <- function(object, selection = NULL) {
     country = "parse_country",
     pids = "parse_pids",
     originalIds = "parse_list",
-    fundings = "parse_fundings",
+    fundings = "parse_org_fundings",
     collectedFrom = "parse_collected_from"
   )
 
@@ -509,6 +509,8 @@ parse_proj_funding <- function(res, var = "funding") {
   }
 }
 
+#' @keywords internal
+parse_org_fundings <- function(res, var = "fundings") {
   if (is.null(res[[var]])) {
     NULL
   } else {
