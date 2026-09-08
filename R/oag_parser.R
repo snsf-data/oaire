@@ -623,6 +623,24 @@ parse_authors <- function(res, var = "authors") {
 }
 
 #' @keywords internal
+parse_h2020 <- function(res, var = "h2020Programmes") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          code = x[["code"]] %||% NA_character_,
+          description = x[["description"]] %||% NA_integer_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+#' @keywords internal
 parse_indicators <- function(res, var = "indicators") {
   if (is.null(res[[var]])) {
     NULL
