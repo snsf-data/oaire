@@ -131,7 +131,16 @@ parse_research_products <- function(
       do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
     }) |>
       # Make sure that set to list any data not being a scalar
-      lapply(\(x) ifelse(rlang::is_scalar_atomic(x), x, list(x)))
+      lapply(
+        \(x) {
+          if (rlang::is_scalar_atomic(x)) {
+            x
+          } else {
+            list(x)
+          }
+        }
+      )
+
     names(parsed_vars) <- names(vars_with_fn)
 
     # Turn the list of parsed data into a tibble and bind it to the tibble with
@@ -195,7 +204,15 @@ parse_entity_organizations <- function(object, selection = NULL) {
       do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
     }) |>
       # Make sure that set to list any data not being a scalar
-      lapply(\(x) ifelse(rlang::is_scalar_atomic(x), x, list(x)))
+      lapply(
+        \(x) {
+          if (rlang::is_scalar_atomic(x)) {
+            x
+          } else {
+            list(x)
+          }
+        }
+      )
 
     names(parsed_vars) <- names(vars_with_fn)
 
