@@ -338,6 +338,20 @@ parse_countries <- function(res, var = "countries") {
 }
 
 #' @keywords internal
+parse_country <- function(res, var = "country") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      code = res[[var]][["code"]] %||% NA_character_,
+      label = res[[var]][["label"]] %||% NA_character_,
+      provenance = res[[var]][["provenance"]][["provenance"]] %||%
+        NA_character_,
+      provenance_trust = res[[var]][["provenance"]][["trust"]] %||% NA_real_
+    )
+  }
+}
+#' @keywords internal
 parse_subjects <- function(res, var = "subjects") {
   if (is.null(res[[var]])) {
     NULL
