@@ -134,6 +134,70 @@ parse_research_products <- function(
   res_prod_df
 }
 
+#' @export
+
+parse_entity_organizations <- function(object, selection = NULL) {
+  # Initiate an empty table with the variable of the organizations type already
+  # set.
+  res_org_df <- init_orgs_df(selection)
+
+  if (is.null(selection)) {
+    # Only keep the variable to parse that are in "selection"
+    selection <- colnames(res_org_df)
+  }
+
+  # Named vector where the names are the organizations variables and the value
+  # their corresponding parser.
+  vars_with_fn <- c(
+    id = "parse_string",
+    legalShortName = "parse_string",
+    legalName = "parse_string",
+    alternativeNames = "parse_list",
+    websiteUrl = "parse_string",
+    country = "parse_country",
+    pids = "parse_pids",
+    originalIds = "parse_list",
+    fundings = "parse_fundings",
+    collectedFrom = "parse_collected_from"
+  )
+
+  # Only keep the variable to parse that are in "selection"
+  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
+
+  # Initiate a progress bar for the data parsing process
+  cli::cli_progress_bar(
+    total = length(object),
+    type = "custom",
+    format = paste0(
+      "{cli::pb_spin} Parsed {cli::pb_current} organization{?s} out of ",
+      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+    )
+  )
+
+  # Loop over each element in `object`
+  for (i in seq_along(object)) {
+    cli::cli_progress_update(set = i)
+
+    # Go over all variables to parse and extract structured data from the raw
+    # data.
+    parsed_vars <- lapply(names(vars_with_fn), \(x) {
+      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
+    }) |>
+      # Make sure that set to list any data not being a scalar
+      lapply(\(x) ifelse(rlang::is_scalar_atomic(x), x, list(x)))
+
+    names(parsed_vars) <- names(vars_with_fn)
+
+    # Turn the list of parsed data into a tibble and bind it to the tibble with
+    # the already parsed data.
+    vars_df <- tibble::as_tibble(parsed_vars)
+    res_org_df <- rbind(res_org_df, vars_df)
+  }
+  cli::cli_progress_done()
+
+  res_org_df
+}
+
 #==============================================================================|
 #                          ---- Variable parsers ----
 #==============================================================================|
