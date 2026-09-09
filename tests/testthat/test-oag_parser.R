@@ -124,7 +124,7 @@ test_that("Parsing functions work (projects)", {
 
   expect_no_error(
     parsed_proj <- suppressMessages(
-      parse_entity_organizations(res_proj[samp])
+      parse_entity_projects(res_proj[samp])
     )
   )
 
