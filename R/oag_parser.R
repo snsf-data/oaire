@@ -48,6 +48,16 @@
 #'
 #' # Parsing the returned projects object
 #' res_proj_df <- parse_entity_projects(res_proj)
+#'
+#' # Fetch some "persons" data from the OpenAIRE Graph
+#' res_prsn <- oag_fetch(
+#'   "persons",
+#'   lastName = "Gorin",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned projects object
+#' res_prsn_df <- parse_entity_persons(res_prsn)
 #' }
 
 parse_research_products <- function(
@@ -316,6 +326,9 @@ parse_entity_projects <- function(object, selection = NULL) {
 
   res_proj_df
 }
+
+#' @rdname parse_research_products
+#' @export
 
 parse_entity_persons <- function(object, selection = NULL) {
   # Initiate an empty table with the variable of the organizations type already
