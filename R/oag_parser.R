@@ -26,7 +26,11 @@
 #' )
 #'
 #' # Parsing the returned research products object
-#' res_prod_df <- parse_research_products(res_prod, type = "publication")
+#' res_prod_df <- oag_parse_object(
+#'   res_prod,
+#'   entity = "research-products",
+#'   type = "publication"
+#' )
 #'
 #' # Fetch some "organizations" data from the OpenAIRE Graph
 #' res_org <- oag_fetch(
@@ -36,7 +40,7 @@
 #' )
 #'
 #' # Parsing the returned organizations object
-#' res_org_df <- parse_entity_organizations(res_org)
+#' res_org_df <- oag_parse_object(res_org, entity = "organizations")
 #'
 #' # Fetch some "projects" data from the OpenAIRE Graph
 #' res_proj <- oag_fetch(
@@ -47,7 +51,7 @@
 #' )
 #'
 #' # Parsing the returned projects object
-#' res_proj_df <- parse_entity_projects(res_proj)
+#' res_proj_df <- oag_parse_object(res_proj, entity = "projects")
 #'
 #' # Fetch some "persons" data from the OpenAIRE Graph
 #' res_prsn <- oag_fetch(
@@ -57,7 +61,7 @@
 #' )
 #'
 #' # Parsing the returned projects object
-#' res_prsn_df <- parse_entity_persons(res_prsn)
+#' res_prsn_df <- oag_parse_object(res_prsn, entity = "persons")
 #'
 #' # Fetch some "persons" data from the OpenAIRE Graph
 #' res_ds <- oag_fetch(
@@ -67,79 +71,39 @@
 #' )
 #'
 #' # Parsing the returned projects object
-#' res_ds_df <- parse_entity_persons(res_ds)
+#' res_ds_df <- oag_parse_object(res_ds, entity = "datasources")
 #' }
 
-parse_research_products <- function(
+oag_parse_object <- function(
   object,
-  type = c("publication", "dataset", "software", "other"),
-  selection = NULL
+  entity,
+  selection = NULL,
+  type = c("publication", "dataset", "software", "other")
 ) {
   type <- rlang::arg_match(
     type,
     c("publication", "dataset", "software", "other")
   )
-  # Initiate an empty table with the variable of the research product type
-  # already set.
-  res_prod_df <- init_res_prod_df(type, selection)
 
-  if (is.null(selection)) {
-    # Only keep the variable to parse that are in "selection"
-    selection <- colnames(res_prod_df)
-  }
+  res_df <- NULL
 
-  # Named vector where the names are the research product variables and the
-  # value their corresponding parser.
-  vars_with_fn <- c(
-    # Common variables
-    id = "parse_string",
-    type = "parse_string",
-    originalIds = "parse_list",
-    mainTitle = "parse_string",
-    subTitle = "parse_string",
-    authors = "parse_authors",
-    bestAccessRight = "parse_best_access_right",
-    contributors = "parse_list",
-    countries = "parse_countries",
-    coverages = "parse_list",
-    dateOfCollection = "parse_datetime",
-    descriptions = "parse_list",
-    embargoEndDate = "parse_date",
-    indicators = "parse_indicators",
-    instances = "parse_instances",
-    language = "parse_language",
-    lastUpdateTimeStamp = "parse_string",
-    pids = "parse_pids",
-    publicationDate = "parse_date",
-    publisher = "parse_string",
-    sources = "parse_list",
-    formats = "parse_list",
-    subjects = "parse_subjects",
-    isGreen = "parse_bool",
-    openAccessColor = "parse_string",
-    isInDiamondJournal = "parse_bool",
-    publiclyFunded = "parse_bool",
-    projects = "parse_projects",
-    organizations = "parse_organizations",
-    communities = "parse_communities",
-    collectedFrom = "parse_collected_from",
-    # Specific to publications
-    container = "parse_container",
-    # Specific to data sources
-    size = "parse_string",
-    version = "parse_string",
-    geoLocations = "parse_geo_locations",
-    # Specific to software
-    documentationUrls = "parse_list",
-    codeRepositoryUrl = "parse_string",
-    programmingLanguage = "parse_string",
-    # Specific to other
-    contactPeople = "parse_list",
-    contactGroups = "parse_list",
-    tools = "parse_list"
+  # Named vector where names are the object variables and the value their
+  # corresponding parser of the variable.
+  vars_with_fn <- switch(
+    entity,
+    "research-products" = get_prod_vars(),
+    "organizations" = get_org_vars(),
+    "datasources" = get_ds_vars(),
+    "projects" = get_proj_vars(),
+    "persons" = get_prsn_vars()
   )
 
   # Only keep the variable to parse that are in "selection"
+  if (is.null(selection)) {
+    selection <- names(vars_with_fn)
+  }
+
+  # Only keep the variables to parse that are in "selection"
   vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
 
   # Initiate a progress bar for the data parsing process
@@ -147,15 +111,14 @@ parse_research_products <- function(
     total = length(object),
     type = "custom",
     format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} work(?s) out of  ",
-      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+      "{cli::pb_spin} Parsed {cli::pb_current} out of {length(object)} ",
+      "{entity} objects... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
     )
   )
 
   # Loop over each element in `object`
   for (i in seq_along(object)) {
     cli::cli_progress_update(set = i)
-
     # Go over all variables to parse and extract structured data from the raw
     # data.
     parsed_vars <- lapply(names(vars_with_fn), \(x) {
@@ -177,328 +140,12 @@ parse_research_products <- function(
     # Turn the list of parsed data into a tibble and bind it to the tibble with
     # the already parsed data.
     vars_df <- tibble::as_tibble(parsed_vars)
-    res_prod_df <- rbind(res_prod_df, vars_df)
+    res_df <- rbind(res_df, vars_df)
   }
   cli::cli_progress_done()
 
-  res_prod_df
-}
+  res_df
 
-#' @rdname parse_research_products
-#' @export
-
-parse_entity_organizations <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the organizations type already
-  # set.
-  res_org_df <- init_orgs_df(selection)
-
-  if (is.null(selection)) {
-    # Only keep the variable to parse that are in "selection"
-    selection <- colnames(res_org_df)
-  }
-
-  # Named vector where the names are the organizations variables and the value
-  # their corresponding parser.
-  vars_with_fn <- c(
-    id = "parse_string",
-    legalShortName = "parse_string",
-    legalName = "parse_string",
-    alternativeNames = "parse_list",
-    websiteUrl = "parse_string",
-    country = "parse_country",
-    pids = "parse_pids",
-    originalIds = "parse_list",
-    fundings = "parse_org_fundings",
-    collectedFrom = "parse_collected_from"
-  )
-
-  # Only keep the variable to parse that are in "selection"
-  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
-
-  # Initiate a progress bar for the data parsing process
-  cli::cli_progress_bar(
-    total = length(object),
-    type = "custom",
-    format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} organization{?s} out of ",
-      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
-    )
-  )
-
-  # Loop over each element in `object`
-  for (i in seq_along(object)) {
-    cli::cli_progress_update(set = i)
-
-    # Go over all variables to parse and extract structured data from the raw
-    # data.
-    parsed_vars <- lapply(names(vars_with_fn), \(x) {
-      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
-    }) |>
-      # Make sure that set to list any data not being a scalar
-      lapply(
-        \(x) {
-          if (rlang::is_scalar_atomic(x)) {
-            x
-          } else {
-            list(x)
-          }
-        }
-      )
-
-    names(parsed_vars) <- names(vars_with_fn)
-
-    # Turn the list of parsed data into a tibble and bind it to the tibble with
-    # the already parsed data.
-    vars_df <- tibble::as_tibble(parsed_vars)
-    res_org_df <- rbind(res_org_df, vars_df)
-  }
-  cli::cli_progress_done()
-
-  res_org_df
-}
-
-#' @rdname parse_research_products
-#' @export
-
-parse_entity_projects <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the projects type already
-  # set.
-  res_proj_df <- init_proj_df(selection)
-
-  if (is.null(selection)) {
-    # Only keep the variable to parse that are in "selection"
-    selection <- colnames(res_proj_df)
-  }
-
-  # Named vector where the names are the projects variables and the value
-  # their corresponding parser.
-  vars_with_fn <- c(
-    id = "parse_string",
-    code = "parse_string",
-    acronym = "parse_string",
-    title = "parse_string",
-    callIdentifier = "parse_string",
-    fundings = "parse_proj_fundings",
-    granted = "parse_granted",
-    h2020Programmes = "parse_h2020",
-    funding = "parse_proj_funding",
-    keywords = "parse_string",
-    openAccessMandateForDataset = "parse_bool",
-    openAccessMandateForPublications = "parse_bool",
-    startDate = "parse_date",
-    endDate = "parse_date",
-    subjects = "parse_list",
-    summary = "parse_string",
-    websiteUrl = "parse_string"
-  )
-
-  # Only keep the variable to parse that are in "selection"
-  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
-
-  # Initiate a progress bar for the data parsing process
-  cli::cli_progress_bar(
-    total = length(object),
-    type = "custom",
-    format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} project{?s} out of ",
-      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
-    )
-  )
-
-  # Loop over each element in `object`
-  for (i in seq_along(object)) {
-    cli::cli_progress_update(set = i)
-
-    # Go over all variables to parse and extract structured data from the raw
-    # data.
-    parsed_vars <- lapply(names(vars_with_fn), \(x) {
-      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
-    }) |>
-      # Make sure that set to list any data not being a scalar
-      lapply(
-        \(x) {
-          if (rlang::is_scalar_atomic(x)) {
-            x
-          } else {
-            list(x)
-          }
-        }
-      )
-
-    names(parsed_vars) <- names(vars_with_fn)
-
-    # Turn the list of parsed data into a tibble and bind it to the tibble with
-    # the already parsed data.
-    vars_df <- tibble::as_tibble(parsed_vars)
-    res_proj_df <- rbind(res_proj_df, vars_df)
-  }
-  cli::cli_progress_done()
-
-  res_proj_df
-}
-
-#' @rdname parse_research_products
-#' @export
-
-parse_entity_persons <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the persons type already
-  # set.
-  res_prsn_df <- init_prsn_df(selection)
-
-  if (is.null(selection)) {
-    # Only keep the variable to parse that are in "selection"
-    selection <- colnames(res_prsn_df)
-  }
-
-  # Named vector where the names are the persons variables and the value
-  # their corresponding parser.
-  vars_with_fn <- c(
-    id = "parse_string",
-    originalId = "parse_list",
-    givenName = "parse_string",
-    familyName = "parse_string",
-    alternativeNames = "parse_list",
-    biography = "parse_string",
-    subject = "parse_list",
-    indicator = "parse_indicator",
-    context = "parse_context",
-    consent = "parse_bool",
-    coAuthors = "parse_list"
-  )
-
-  # Only keep the variable to parse that are in "selection"
-  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
-
-  # Initiate a progress bar for the data parsing process
-  cli::cli_progress_bar(
-    total = length(object),
-    type = "custom",
-    format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} person{?s} out of ",
-      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
-    )
-  )
-
-  # Loop over each element in `object`
-  for (i in seq_along(object)) {
-    cli::cli_progress_update(set = i)
-
-    # Go over all variables to parse and extract structured data from the raw
-    # data.
-    parsed_vars <- lapply(names(vars_with_fn), \(x) {
-      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
-    }) |>
-      # Make sure that set to list any data not being a scalar
-      lapply(
-        \(x) {
-          if (rlang::is_scalar_atomic(x)) {
-            x
-          } else {
-            list(x)
-          }
-        }
-      )
-
-    names(parsed_vars) <- names(vars_with_fn)
-
-    # Turn the list of parsed data into a tibble and bind it to the tibble with
-    # the already parsed data.
-    vars_df <- tibble::as_tibble(parsed_vars)
-    res_prsn_df <- rbind(res_prsn_df, vars_df)
-  }
-  cli::cli_progress_done()
-
-  res_prsn_df
-}
-
-#' @rdname parse_research_products
-#' @export
-
-parse_entity_data_sources <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the data sources type already
-  # set.
-  res_ds_df <- init_data_sources_df(selection)
-
-  if (is.null(selection)) {
-    # Only keep the variable to parse that are in "selection"
-    selection <- colnames(res_ds_df)
-  }
-
-  # Named vector where the names are the data sources variables and the value
-  # their corresponding parser.
-  vars_with_fn <- c(
-    id = "parse_string",
-    originalIds = "parse_list",
-    pids = "parse_pids",
-    type = "parse_type",
-    openaireCompatibility = "parse_string",
-    officialName = "parse_string",
-    englishName = "parse_string",
-    websiteUrl = "parse_string",
-    logoUrl = "parse_string",
-    dateOfValidation = "parse_date",
-    description = "parse_string",
-    subjects = "parse_list",
-    languages = "parse_list",
-    contentTypes = "parse_list",
-    releaseStartDate = "parse_date",
-    releaseEndDate = "parse_date",
-    accessRights = "parse_string",
-    uploadRights = "parse_string",
-    databaseAccessRestriction = "parse_string",
-    dataUploadRestriction = "parse_string",
-    versioning = "parse_bool",
-    citationGuidelineUrl = "parse_string",
-    pidSystems = "parse_string",
-    certificates = "parse_string",
-    policies = "parse_list",
-    journal = "parse_journal",
-    missionStatementUrl = "parse_string"
-  )
-
-  # Only keep the variable to parse that are in "selection"
-  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
-
-  # Initiate a progress bar for the data parsing process
-  cli::cli_progress_bar(
-    total = length(object),
-    type = "custom",
-    format = paste0(
-      "{cli::pb_spin} Parsed {cli::pb_current} data sources{?s} out of ",
-      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
-    )
-  )
-
-  # Loop over each element in `object`
-  for (i in seq_along(object)) {
-    cli::cli_progress_update(set = i)
-
-    # Go over all variables to parse and extract structured data from the raw
-    # data.
-    parsed_vars <- lapply(names(vars_with_fn), \(x) {
-      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
-    }) |>
-      # Make sure that set to list any data not being a scalar
-      lapply(
-        \(x) {
-          if (rlang::is_scalar_atomic(x)) {
-            x
-          } else {
-            list(x)
-          }
-        }
-      )
-
-    names(parsed_vars) <- names(vars_with_fn)
-
-    # Turn the list of parsed data into a tibble and bind it to the tibble with
-    # the already parsed data.
-    vars_df <- tibble::as_tibble(parsed_vars)
-    res_ds_df <- rbind(res_ds_df, vars_df)
-  }
-  cli::cli_progress_done()
-
-  res_ds_df
 }
 
 #==============================================================================|
