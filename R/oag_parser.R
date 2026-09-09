@@ -152,6 +152,8 @@ oag_parse_object <- function(
 #                          ---- Variable parsers ----
 #==============================================================================|
 
+## Global variables parsers ----------------------------------------------------
+
 #' @keywords internal
 parse_string <- function(res, var) {
   res[[var]] %||% NA_character_
@@ -200,7 +202,7 @@ parse_pids <- function(res, var = "pids") {
 }
 
 #' @keywords internal
-parse_geo_locations <- function(res, var = "geoLocations") {
+parse_collected_from <- function(res, var = "collectedFrom") {
   if (is.null(res[[var]])) {
     NULL
   } else {
@@ -208,9 +210,36 @@ parse_geo_locations <- function(res, var = "geoLocations") {
       res[[var]],
       \(x) {
         tibble::tibble(
-          box = x[["box"]] %||% NA_character_,
-          place = x[["place"]] %||% NA_character_,
-          point = x[["point"]] %||% NA_character_,
+          key = x[["key"]] %||% NA_character_,
+          value = x[["value"]] %||% NA_character_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+## Research products variables parsers -----------------------------------------
+
+#' @keywords internal
+parse_authors <- function(res, var = "authors") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          fullName = x[["fullName"]] %||% NA_character_,
+          rank = x[["rank"]] %||% NA_integer_,
+          name = x[["name"]] %||% NA_character_,
+          surname = x[["surname"]] %||% NA_character_,
+          pid_scheme = x[["pid"]][["id"]][["scheme"]] %||% NA_character_,
+          pid_value = x[["pid"]][["id"]][["value"]] %||% NA_character_,
+          pid_provenance_ = x[["pid"]][["provenance"]][["provenance"]] %||%
+            NA_character_,
+          pid_provenance_trust = x[["pid"]][["provenance"]][["trust"]] %||%
+            NA_real_,
         )
       }
     ) |>
@@ -219,44 +248,64 @@ parse_geo_locations <- function(res, var = "geoLocations") {
 }
 
 #' @keywords internal
-parse_language <- function(res, var = "language") {
+parse_best_access_right <- function(res, var = "bestAccessRight") {
   if (is.null(res[[var]])) {
     NULL
   } else {
     tibble::tibble(
       code = res[[var]][["code"]] %||% NA_character_,
-      label = res[[var]][["label"]] %||% NA_character_
+      label = res[[var]][["label"]] %||% NA_character_,
+      scheme = res[[var]][["scheme"]] %||% NA_character_
     )
   }
 }
 
 #' @keywords internal
-parse_journal <- function(res, var = "journal") {
+parse_countries <- function(res, var = "countries") {
   if (is.null(res[[var]])) {
     NULL
   } else {
-    tibble::tibble(
-      edition = res[[var]][["edition"]] %||% NA_character_,
-      iss = res[[var]][["iss"]] %||% NA_character_,
-      issnLinking = res[[var]][["issnLinking"]] %||% NA_character_,
-      issnOnline = res[[var]][["issnOnline"]] %||% NA_character_,
-      issnPrinted = res[[var]][["issnPrinted"]] %||% NA_character_,
-      name = res[[var]][["name"]] %||% NA_character_,
-      sp = res[[var]][["sp"]] %||% NA_character_,
-      ep = res[[var]][["ep"]] %||% NA_character_,
-      vol = res[[var]][["vol"]] %||% NA_character_
-    )
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          code = x[["code"]] %||% NA_character_,
+          label = x[["label"]] %||% NA_character_,
+          provenance = x[["provenance"]][["provenance"]] %||% NA_character_,
+          provenance_trust = x[["provenance"]][["trust"]] %||% NA_real_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
   }
 }
 
 #' @keywords internal
-parse_type <- function(res, var = "type") {
+parse_indicators <- function(res, var = "indicators") {
   if (is.null(res[[var]])) {
     NULL
   } else {
     tibble::tibble(
-      scheme = res[[var]][["scheme"]] %||% NA_character_,
-      value = res[[var]][["value"]] %||% NA_character_
+      influence = res[[var]][["citationImpact"]][["influence"]] %||%
+        NA_integer_,
+      influenceClass = res[[var]][["citationImpact"]][["influenceClass"]] %||%
+        NA_character_,
+      citationCount = res[[var]][["citationImpact"]][["citationCount"]] %||%
+        NA_integer_,
+      citationClass = res[[var]][["citationImpact"]][["citationClass"]] %||%
+        NA_character_,
+      popularity = res[[var]][["citationImpact"]][["popularity"]] %||%
+        NA_integer_,
+      popularityClass = res[[var]][["citationImpact"]][["popularityClass"]] %||%
+        NA_character_,
+      impulse = res[[var]][["citationImpact"]][["impulse"]] %||%
+        NA_integer_,
+      impulseClass = res[[var]][["citationImpact"]][["impulseClass"]] %||%
+        NA_character_,
+      usage_counts_downloads = res[[var]][["usageCounts"]][["downloads"]] %||%
+        NA_integer_,
+      usage_counts_views = res[[var]][["usageCounts"]][["views"]] %||%
+        NA_integer_,
     )
   }
 }
@@ -318,15 +367,34 @@ parse_instances <- function(res, var = "instances") {
 }
 
 #' @keywords internal
-parse_best_access_right <- function(res, var = "bestAccessRight") {
+parse_language <- function(res, var = "language") {
   if (is.null(res[[var]])) {
     NULL
   } else {
     tibble::tibble(
       code = res[[var]][["code"]] %||% NA_character_,
-      label = res[[var]][["label"]] %||% NA_character_,
-      scheme = res[[var]][["scheme"]] %||% NA_character_
+      label = res[[var]][["label"]] %||% NA_character_
     )
+  }
+}
+
+#' @keywords internal
+parse_subjects <- function(res, var = "subjects") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          subject_scheme = x[["subject"]][["scheme"]] %||% NA,
+          subject_value = x[["subject"]][["value"]] %||% NA,
+          provenance = x[["provenance"]][["provenance"]] %||% NA_character_,
+          provenance_trust = x[["provenance"]][["trust"]] %||% NA_real_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
   }
 }
 
@@ -371,311 +439,6 @@ parse_projects <- function(res, var = "projects") {
       }
     ) |>
       Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_countries <- function(res, var = "countries") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          code = x[["code"]] %||% NA_character_,
-          label = x[["label"]] %||% NA_character_,
-          provenance = x[["provenance"]][["provenance"]] %||% NA_character_,
-          provenance_trust = x[["provenance"]][["trust"]] %||% NA_real_
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_country <- function(res, var = "country") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      code = res[[var]][["code"]] %||% NA_character_,
-      label = res[[var]][["label"]] %||% NA_character_,
-      provenance = res[[var]][["provenance"]][["provenance"]] %||%
-        NA_character_,
-      provenance_trust = res[[var]][["provenance"]][["trust"]] %||% NA_real_
-    )
-  }
-}
-
-#' @keywords internal
-parse_proj_fundings <- function(res, var = "fundings") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          fundingStream_description = x[["fundingStream"]][["description"]] %||%
-            NA_character_,
-          fundingStream_id = x[["fundingStream"]][["id"]] %||% NA_character_,
-          jurisdiction = x[["jurisdiction"]] %||% NA_character_,
-          name = x[["name"]] %||% NA_character_,
-          shortName = x[["shortName"]] %||% NA_real_
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_proj_funding <- function(res, var = "funding") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      funder_id = res[[var]][["funder"]][["id"]] %||% NA_character_,
-      funder_shortname = res[[var]][["funder"]][["shortname"]] %||%
-        NA_character_,
-      funder_name = res[[var]][["funder"]][["name"]] %||% NA_character_,
-      funder_jurisdiction_code = res[[var]][["funder"]][["jurisdiction"]][[
-        "code"
-      ]] %||%
-        NA_character_,
-      funder_jurisdiction_label = res[[var]][["funder"]][["jurisdiction"]][[
-        "label"
-      ]] %||%
-        NA_character_,
-      funder_pid = res[[var]][["funder"]][["pid"]] %||% NA_character_,
-      level0 = list(
-        tibble::tibble(
-          id = res[[var]][["level0"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level0"]][["description"]] %||%
-            NA_character_,
-          name = res[[var]][["level0"]][["name"]] %||% NA_character_
-        )
-      ),
-      level1 = list(
-        tibble::tibble(
-          id = res[[var]][["level1"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level1"]][["description"]] %||%
-            NA_character_,
-          name = res[[var]][["level1"]][["name"]] %||% NA_character_
-        )
-      ),
-      level2 = list(
-        tibble::tibble(
-          id = res[[var]][["level2"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level2"]][["description"]] %||%
-            NA_character_,
-          name = res[[var]][["level2"]][["name"]] %||% NA_character_
-        )
-      )
-    )
-  }
-}
-
-#' @keywords internal
-parse_org_fundings <- function(res, var = "fundings") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          funder_id = x[["funder"]][["id"]] %||% NA_character_,
-          funder_shortname = x[["funder"]][["shortname"]] %||% NA_character_,
-          funder_name = x[["funder"]][["name"]] %||% NA_character_,
-          funder_jurisdiction_code = x[["funder"]][["jurisdiction"]][[
-            "code"
-          ]] %||%
-            NA_character_,
-          funder_jurisdiction_label = x[["funder"]][["jurisdiction"]][[
-            "label"
-          ]] %||%
-            NA_character_,
-          funder_pid = x[["funder"]][["pid"]] %||% NA_character_,
-          level0 = list(
-            tibble::tibble(
-              id = x[["level0"]][["id"]] %||% NA_character_,
-              description = x[["level0"]][["description"]] %||% NA_character_,
-              name = x[["level0"]][["name"]] %||% NA_character_
-            )
-          ),
-          level1 = list(
-            tibble::tibble(
-              id = x[["level1"]][["id"]] %||% NA_character_,
-              description = x[["level1"]][["description"]] %||% NA_character_,
-              name = x[["level1"]][["name"]] %||% NA_character_
-            )
-          ),
-          level2 = list(
-            tibble::tibble(
-              id = x[["level2"]][["id"]] %||% NA_character_,
-              description = x[["level2"]][["description"]] %||% NA_character_,
-              name = x[["level2"]][["name"]] %||% NA_character_
-            )
-          )
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_subjects <- function(res, var = "subjects") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          subject_scheme = x[["subject"]][["scheme"]] %||% NA,
-          subject_value = x[["subject"]][["value"]] %||% NA,
-          provenance = x[["provenance"]][["provenance"]] %||% NA_character_,
-          provenance_trust = x[["provenance"]][["trust"]] %||% NA_real_
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_collected_from <- function(res, var = "collectedFrom") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          key = x[["key"]] %||% NA_character_,
-          value = x[["value"]] %||% NA_character_
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-#' @keywords internal
-parse_authors <- function(res, var = "authors") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          fullName = x[["fullName"]] %||% NA_character_,
-          rank = x[["rank"]] %||% NA_integer_,
-          name = x[["name"]] %||% NA_character_,
-          surname = x[["surname"]] %||% NA_character_,
-          pid_scheme = x[["pid"]][["id"]][["scheme"]] %||% NA_character_,
-          pid_value = x[["pid"]][["id"]][["value"]] %||% NA_character_,
-          pid_provenance_ = x[["pid"]][["provenance"]][["provenance"]] %||%
-            NA_character_,
-          pid_provenance_trust = x[["pid"]][["provenance"]][["trust"]] %||%
-            NA_real_,
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-
-#' @keywords internal
-parse_granted <- function(res, var = "granted") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      currency = res[[var]][["currency"]] %||% NA_integer_,
-      fundedAmount = res[[var]][["fundedAmount"]] %||% NA_integer_,
-      totalCost = res[[var]][["totalCost"]] %||% NA_integer_
-    )
-  }
-}
-
-#' @keywords internal
-parse_h2020 <- function(res, var = "h2020Programmes") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    lapply(
-      res[[var]],
-      \(x) {
-        tibble::tibble(
-          code = x[["code"]] %||% NA_character_,
-          description = x[["description"]] %||% NA_integer_
-        )
-      }
-    ) |>
-      Reduce(x = _, "rbind")
-  }
-}
-
-
-#' @keywords internal
-parse_context <- function(res, var = "context") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      affiliation = res[[var]][["affiliation"]] %||% NA_character_,
-      department = res[[var]][["department"]] %||% NA_character_,
-      country = res[[var]][["country"]] %||% NA_character_
-    )
-  }
-}
-
-#' @keywords internal
-parse_indicator <- function(res, var = "indicator") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      citationCount = res[[var]][["citationCount"]] %||% NA_integer_,
-      downloads = res[[var]][["downloads"]] %||% NA_integer_
-    )
-  }
-}
-
-#' @keywords internal
-parse_indicators <- function(res, var = "indicators") {
-  if (is.null(res[[var]])) {
-    NULL
-  } else {
-    tibble::tibble(
-      influence = res[[var]][["citationImpact"]][["influence"]] %||%
-        NA_integer_,
-      influenceClass = res[[var]][["citationImpact"]][["influenceClass"]] %||%
-        NA_character_,
-      citationCount = res[[var]][["citationImpact"]][["citationCount"]] %||%
-        NA_integer_,
-      citationClass = res[[var]][["citationImpact"]][["citationClass"]] %||%
-        NA_character_,
-      popularity = res[[var]][["citationImpact"]][["popularity"]] %||%
-        NA_integer_,
-      popularityClass = res[[var]][["citationImpact"]][["popularityClass"]] %||%
-        NA_character_,
-      impulse = res[[var]][["citationImpact"]][["impulse"]] %||%
-        NA_integer_,
-      impulseClass = res[[var]][["citationImpact"]][["impulseClass"]] %||%
-        NA_character_,
-      usage_counts_downloads = res[[var]][["usageCounts"]][["downloads"]] %||%
-        NA_integer_,
-      usage_counts_views = res[[var]][["usageCounts"]][["views"]] %||%
-        NA_integer_,
-    )
   }
 }
 
@@ -735,6 +498,253 @@ parse_container <- function(res, var = "container") {
       sp = res[[var]][["sp"]] %||% NA_integer_,
       ep = res[[var]][["ep"]] %||% NA_integer_,
       vol = res[[var]][["vol"]] %||% NA_integer_
+    )
+  }
+}
+
+#' @keywords internal
+parse_geo_locations <- function(res, var = "geoLocations") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          box = x[["box"]] %||% NA_character_,
+          place = x[["place"]] %||% NA_character_,
+          point = x[["point"]] %||% NA_character_,
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+## Organizations variables parsers ---------------------------------------------
+
+#' @keywords internal
+parse_country <- function(res, var = "country") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      code = res[[var]][["code"]] %||% NA_character_,
+      label = res[[var]][["label"]] %||% NA_character_,
+      provenance = res[[var]][["provenance"]][["provenance"]] %||%
+        NA_character_,
+      provenance_trust = res[[var]][["provenance"]][["trust"]] %||% NA_real_
+    )
+  }
+}
+
+#' @keywords internal
+parse_org_fundings <- function(res, var = "fundings") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          funder_id = x[["funder"]][["id"]] %||% NA_character_,
+          funder_shortname = x[["funder"]][["shortname"]] %||% NA_character_,
+          funder_name = x[["funder"]][["name"]] %||% NA_character_,
+          funder_jurisdiction_code = x[["funder"]][["jurisdiction"]][[
+            "code"
+          ]] %||%
+            NA_character_,
+          funder_jurisdiction_label = x[["funder"]][["jurisdiction"]][[
+            "label"
+          ]] %||%
+            NA_character_,
+          funder_pid = x[["funder"]][["pid"]] %||% NA_character_,
+          level0 = list(
+            tibble::tibble(
+              id = x[["level0"]][["id"]] %||% NA_character_,
+              description = x[["level0"]][["description"]] %||% NA_character_,
+              name = x[["level0"]][["name"]] %||% NA_character_
+            )
+          ),
+          level1 = list(
+            tibble::tibble(
+              id = x[["level1"]][["id"]] %||% NA_character_,
+              description = x[["level1"]][["description"]] %||% NA_character_,
+              name = x[["level1"]][["name"]] %||% NA_character_
+            )
+          ),
+          level2 = list(
+            tibble::tibble(
+              id = x[["level2"]][["id"]] %||% NA_character_,
+              description = x[["level2"]][["description"]] %||% NA_character_,
+              name = x[["level2"]][["name"]] %||% NA_character_
+            )
+          )
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+## Projects variables parsers --------------------------------------------------
+
+#' @keywords internal
+parse_proj_fundings <- function(res, var = "fundings") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          fundingStream_description = x[["fundingStream"]][["description"]] %||%
+            NA_character_,
+          fundingStream_id = x[["fundingStream"]][["id"]] %||% NA_character_,
+          jurisdiction = x[["jurisdiction"]] %||% NA_character_,
+          name = x[["name"]] %||% NA_character_,
+          shortName = x[["shortName"]] %||% NA_real_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+#' @keywords internal
+parse_granted <- function(res, var = "granted") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      currency = res[[var]][["currency"]] %||% NA_integer_,
+      fundedAmount = res[[var]][["fundedAmount"]] %||% NA_integer_,
+      totalCost = res[[var]][["totalCost"]] %||% NA_integer_
+    )
+  }
+}
+
+#' @keywords internal
+parse_h2020 <- function(res, var = "h2020Programmes") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    lapply(
+      res[[var]],
+      \(x) {
+        tibble::tibble(
+          code = x[["code"]] %||% NA_character_,
+          description = x[["description"]] %||% NA_integer_
+        )
+      }
+    ) |>
+      Reduce(x = _, "rbind")
+  }
+}
+
+#' @keywords internal
+parse_proj_funding <- function(res, var = "funding") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      funder_id = res[[var]][["funder"]][["id"]] %||% NA_character_,
+      funder_shortname = res[[var]][["funder"]][["shortname"]] %||%
+        NA_character_,
+      funder_name = res[[var]][["funder"]][["name"]] %||% NA_character_,
+      funder_jurisdiction_code = res[[var]][["funder"]][["jurisdiction"]][[
+        "code"
+      ]] %||%
+        NA_character_,
+      funder_jurisdiction_label = res[[var]][["funder"]][["jurisdiction"]][[
+        "label"
+      ]] %||%
+        NA_character_,
+      funder_pid = res[[var]][["funder"]][["pid"]] %||% NA_character_,
+      level0 = list(
+        tibble::tibble(
+          id = res[[var]][["level0"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level0"]][["description"]] %||%
+            NA_character_,
+          name = res[[var]][["level0"]][["name"]] %||% NA_character_
+        )
+      ),
+      level1 = list(
+        tibble::tibble(
+          id = res[[var]][["level1"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level1"]][["description"]] %||%
+            NA_character_,
+          name = res[[var]][["level1"]][["name"]] %||% NA_character_
+        )
+      ),
+      level2 = list(
+        tibble::tibble(
+          id = res[[var]][["level2"]][["id"]] %||% NA_character_,
+          description = res[[var]][["level2"]][["description"]] %||%
+            NA_character_,
+          name = res[[var]][["level2"]][["name"]] %||% NA_character_
+        )
+      )
+    )
+  }
+}
+
+## Persons variables parsers ---------------------------------------------------
+
+#' @keywords internal
+parse_indicator <- function(res, var = "indicator") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      citationCount = res[[var]][["citationCount"]] %||% NA_integer_,
+      downloads = res[[var]][["downloads"]] %||% NA_integer_
+    )
+  }
+}
+
+#' @keywords internal
+parse_context <- function(res, var = "context") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      affiliation = res[[var]][["affiliation"]] %||% NA_character_,
+      department = res[[var]][["department"]] %||% NA_character_,
+      country = res[[var]][["country"]] %||% NA_character_
+    )
+  }
+}
+
+## Datasources variables parsers -----------------------------------------------
+
+#' @keywords internal
+parse_type <- function(res, var = "type") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      scheme = res[[var]][["scheme"]] %||% NA_character_,
+      value = res[[var]][["value"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
+parse_journal <- function(res, var = "journal") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      edition = res[[var]][["edition"]] %||% NA_character_,
+      iss = res[[var]][["iss"]] %||% NA_character_,
+      issnLinking = res[[var]][["issnLinking"]] %||% NA_character_,
+      issnOnline = res[[var]][["issnOnline"]] %||% NA_character_,
+      issnPrinted = res[[var]][["issnPrinted"]] %||% NA_character_,
+      name = res[[var]][["name"]] %||% NA_character_,
+      sp = res[[var]][["sp"]] %||% NA_character_,
+      ep = res[[var]][["ep"]] %||% NA_character_,
+      vol = res[[var]][["vol"]] %||% NA_character_
     )
   }
 }
