@@ -484,6 +484,25 @@ parse_language <- function(res, var = "language") {
 }
 
 #' @keywords internal
+parse_journal <- function(res, var = "journal") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      edition = res[[var]][["edition"]] %||% NA_character_,
+      iss = res[[var]][["iss"]] %||% NA_character_,
+      issnLinking = res[[var]][["issnLinking"]] %||% NA_character_,
+      issnOnline = res[[var]][["issnOnline"]] %||% NA_character_,
+      issnPrinted = res[[var]][["issnPrinted"]] %||% NA_character_,
+      name = res[[var]][["name"]] %||% NA_character_,
+      sp = res[[var]][["sp"]] %||% NA_character_,
+      ep = res[[var]][["ep"]] %||% NA_character_,
+      vol = res[[var]][["vol"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
 parse_instances <- function(res, var = "instances") {
   if (is.null(res[[var]])) {
     NULL
