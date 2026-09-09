@@ -757,6 +757,20 @@ parse_h2020 <- function(res, var = "h2020Programmes") {
   }
 }
 
+
+#' @keywords internal
+parse_context <- function(res, var = "context") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      affiliation = res[[var]][["affiliation"]] %||% NA_character_,
+      department = res[[var]][["department"]] %||% NA_character_,
+      country = res[[var]][["country"]] %||% NA_character_
+    )
+  }
+}
+
 #' @keywords internal
 parse_indicators <- function(res, var = "indicators") {
   if (is.null(res[[var]])) {
