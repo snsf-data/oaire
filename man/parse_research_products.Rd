@@ -5,6 +5,7 @@
 \alias{parse_entity_organizations}
 \alias{parse_entity_projects}
 \alias{parse_entity_persons}
+\alias{parse_entity_data_sources}
 \title{Parse the research products objects}
 \usage{
 parse_research_products(
@@ -18,6 +19,8 @@ parse_entity_organizations(object, selection = NULL)
 parse_entity_projects(object, selection = NULL)
 
 parse_entity_persons(object, selection = NULL)
+
+parse_entity_data_sources(object, selection = NULL)
 }
 \arguments{
 \item{object}{An OpenAIRE Graph object as returned by \code{oag_fetch()} or
@@ -79,5 +82,15 @@ res_prsn <- oag_fetch(
 
 # Parsing the returned projects object
 res_prsn_df <- parse_entity_persons(res_prsn)
+
+# Fetch some "persons" data from the OpenAIRE Graph
+res_ds <- oag_fetch(
+  "datasources",
+  country = "CH",
+  options = oag_options(pageSize = 100, cursor = TRUE)
+)
+
+# Parsing the returned projects object
+res_ds_df <- parse_entity_persons(res_ds)
 }
 }

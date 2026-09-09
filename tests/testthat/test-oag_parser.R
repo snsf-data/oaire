@@ -144,3 +144,19 @@ test_that("Parsing functions work (persons)", {
 
   expect_equal(length(res_prsn), nrow(parsed_prsn))
 })
+
+test_that("Parsing functions work (datasources)", {
+  skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
+
+  res_ds <- suppressMessages(
+    oag_fetch(
+      "datasources",
+      country = "CH",
+      options = oag_options(pageSize = 100, cursor = TRUE)
+    )
+  )
+
+  expect_no_error(parsed_ds <- suppressMessages(parse_entity_persons(res_ds)))
+
+  expect_equal(length(res_ds), nrow(parsed_ds))
+})

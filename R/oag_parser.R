@@ -58,6 +58,16 @@
 #'
 #' # Parsing the returned projects object
 #' res_prsn_df <- parse_entity_persons(res_prsn)
+#'
+#' # Fetch some "persons" data from the OpenAIRE Graph
+#' res_ds <- oag_fetch(
+#'   "datasources",
+#'   country = "CH",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned projects object
+#' res_ds_df <- parse_entity_persons(res_ds)
 #' }
 
 parse_research_products <- function(
@@ -251,7 +261,7 @@ parse_entity_organizations <- function(object, selection = NULL) {
 #' @export
 
 parse_entity_projects <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the organizations type already
+  # Initiate an empty table with the variable of the projects type already
   # set.
   res_proj_df <- init_proj_df(selection)
 
@@ -260,7 +270,7 @@ parse_entity_projects <- function(object, selection = NULL) {
     selection <- colnames(res_proj_df)
   }
 
-  # Named vector where the names are the organizations variables and the value
+  # Named vector where the names are the projects variables and the value
   # their corresponding parser.
   vars_with_fn <- c(
     id = "parse_string",
@@ -331,7 +341,7 @@ parse_entity_projects <- function(object, selection = NULL) {
 #' @export
 
 parse_entity_persons <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the organizations type already
+  # Initiate an empty table with the variable of the persons type already
   # set.
   res_prsn_df <- init_prsn_df(selection)
 
@@ -340,7 +350,7 @@ parse_entity_persons <- function(object, selection = NULL) {
     selection <- colnames(res_prsn_df)
   }
 
-  # Named vector where the names are the organizations variables and the value
+  # Named vector where the names are the persons variables and the value
   # their corresponding parser.
   vars_with_fn <- c(
     id = "parse_string",
@@ -399,6 +409,96 @@ parse_entity_persons <- function(object, selection = NULL) {
   cli::cli_progress_done()
 
   res_prsn_df
+}
+
+#' @rdname parse_research_products
+#' @export
+
+parse_entity_data_sources <- function(object, selection = NULL) {
+  # Initiate an empty table with the variable of the data sources type already
+  # set.
+  res_ds_df <- init_data_sources_df(selection)
+
+  if (is.null(selection)) {
+    # Only keep the variable to parse that are in "selection"
+    selection <- colnames(res_ds_df)
+  }
+
+  # Named vector where the names are the data sources variables and the value
+  # their corresponding parser.
+  vars_with_fn <- c(
+    id = "parse_string",
+    originalIds = "parse_list",
+    pids = "parse_pids",
+    type = "parse_type",
+    openaireCompatibility = "parse_string",
+    officialName = "parse_string",
+    englishName = "parse_string",
+    websiteUrl = "parse_string",
+    logoUrl = "parse_string",
+    dateOfValidation = "parse_date",
+    description = "parse_string",
+    subjects = "parse_list",
+    languages = "parse_list",
+    contentTypes = "parse_list",
+    releaseStartDate = "parse_date",
+    releaseEndDate = "parse_date",
+    accessRights = "parse_string",
+    uploadRights = "parse_string",
+    databaseAccessRestriction = "parse_string",
+    dataUploadRestriction = "parse_string",
+    versioning = "parse_bool",
+    citationGuidelineUrl = "parse_string",
+    pidSystems = "parse_string",
+    certificates = "parse_string",
+    policies = "parse_list",
+    journal = "parse_journal",
+    missionStatementUrl = "parse_string"
+  )
+
+  # Only keep the variable to parse that are in "selection"
+  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
+
+  # Initiate a progress bar for the data parsing process
+  cli::cli_progress_bar(
+    total = length(object),
+    type = "custom",
+    format = paste0(
+      "{cli::pb_spin} Parsed {cli::pb_current} data sources{?s} out of ",
+      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+    )
+  )
+
+  # Loop over each element in `object`
+  for (i in seq_along(object)) {
+    cli::cli_progress_update(set = i)
+
+    # Go over all variables to parse and extract structured data from the raw
+    # data.
+    parsed_vars <- lapply(names(vars_with_fn), \(x) {
+      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
+    }) |>
+      # Make sure that set to list any data not being a scalar
+      lapply(
+        \(x) {
+          if (rlang::is_scalar_atomic(x)) {
+            x
+          } else {
+            list(x)
+          }
+        }
+      )
+
+    names(parsed_vars) <- names(vars_with_fn)
+
+    # Turn the list of parsed data into a tibble and bind it to the tibble with
+    # the already parsed data.
+    vars_df <- tibble::as_tibble(parsed_vars)
+    res_ds_df <- rbind(res_ds_df, vars_df)
+  }
+  cli::cli_progress_done()
+
+  res_ds_df
 }
 
 #==============================================================================|
@@ -479,6 +579,37 @@ parse_language <- function(res, var = "language") {
     tibble::tibble(
       code = res[[var]][["code"]] %||% NA_character_,
       label = res[[var]][["label"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
+parse_journal <- function(res, var = "journal") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      edition = res[[var]][["edition"]] %||% NA_character_,
+      iss = res[[var]][["iss"]] %||% NA_character_,
+      issnLinking = res[[var]][["issnLinking"]] %||% NA_character_,
+      issnOnline = res[[var]][["issnOnline"]] %||% NA_character_,
+      issnPrinted = res[[var]][["issnPrinted"]] %||% NA_character_,
+      name = res[[var]][["name"]] %||% NA_character_,
+      sp = res[[var]][["sp"]] %||% NA_character_,
+      ep = res[[var]][["ep"]] %||% NA_character_,
+      vol = res[[var]][["vol"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
+parse_type <- function(res, var = "type") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      scheme = res[[var]][["scheme"]] %||% NA_character_,
+      value = res[[var]][["value"]] %||% NA_character_
     )
   }
 }
