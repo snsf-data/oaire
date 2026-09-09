@@ -767,16 +767,147 @@ null_to_na <- function(x, na_type = NA_character_) {
   }
 }
 
+#==============================================================================|
+#                         ---- Variables to parse ----
+#==============================================================================|
 
+#' @keywords internal
+get_prod_vars <- function() {
+  c(
+    # Common variables
+    id = "parse_string",
+    type = "parse_string",
+    originalIds = "parse_list",
+    mainTitle = "parse_string",
+    subTitle = "parse_string",
+    authors = "parse_authors",
+    bestAccessRight = "parse_best_access_right",
+    contributors = "parse_list",
+    countries = "parse_countries",
+    coverages = "parse_list",
+    dateOfCollection = "parse_datetime",
+    descriptions = "parse_list",
+    embargoEndDate = "parse_date",
+    indicators = "parse_indicators",
+    instances = "parse_instances",
+    language = "parse_language",
+    lastUpdateTimeStamp = "parse_string",
+    pids = "parse_pids",
+    publicationDate = "parse_date",
+    publisher = "parse_string",
+    sources = "parse_list",
+    formats = "parse_list",
+    subjects = "parse_subjects",
+    isGreen = "parse_bool",
+    openAccessColor = "parse_string",
+    isInDiamondJournal = "parse_bool",
+    publiclyFunded = "parse_bool",
+    projects = "parse_projects",
+    organizations = "parse_organizations",
+    communities = "parse_communities",
+    collectedFrom = "parse_collected_from",
+    # Specific to publications
+    container = "parse_container",
+    # Specific to data sources
+    size = "parse_string",
+    version = "parse_string",
+    geoLocations = "parse_geo_locations",
+    # Specific to software
+    documentationUrls = "parse_list",
+    codeRepositoryUrl = "parse_string",
+    programmingLanguage = "parse_string",
+    # Specific to other
+    contactPeople = "parse_list",
+    contactGroups = "parse_list",
+    tools = "parse_list"
   )
 }
 
+#' @keywords internal
+get_org_vars <- function() {
+  c(
+    id = "parse_string",
+    legalShortName = "parse_string",
+    legalName = "parse_string",
+    alternativeNames = "parse_list",
+    websiteUrl = "parse_string",
+    country = "parse_country",
+    pids = "parse_pids",
+    originalIds = "parse_list",
+    fundings = "parse_org_fundings",
+    collectedFrom = "parse_collected_from"
   )
 }
 
+#' @keywords internal
+get_proj_vars <- function() {
+  c(
+    id = "parse_string",
+    code = "parse_string",
+    acronym = "parse_string",
+    title = "parse_string",
+    callIdentifier = "parse_string",
+    fundings = "parse_proj_fundings",
+    granted = "parse_granted",
+    h2020Programmes = "parse_h2020",
+    funding = "parse_proj_funding",
+    keywords = "parse_string",
+    openAccessMandateForDataset = "parse_bool",
+    openAccessMandateForPublications = "parse_bool",
+    startDate = "parse_date",
+    endDate = "parse_date",
+    subjects = "parse_list",
+    summary = "parse_string",
+    websiteUrl = "parse_string"
   )
 }
 
+#' @keywords internal
+get_prsn_vars <- function() {
+  c(
+    id = "parse_string",
+    originalId = "parse_list",
+    givenName = "parse_string",
+    familyName = "parse_string",
+    alternativeNames = "parse_list",
+    biography = "parse_string",
+    subject = "parse_list",
+    indicator = "parse_indicator",
+    context = "parse_context",
+    consent = "parse_bool",
+    coAuthors = "parse_list"
+  )
 }
 
+#' @keywords internal
+get_ds_vars <- function() {
+  c(
+    id = "parse_string",
+    originalIds = "parse_list",
+    pids = "parse_pids",
+    type = "parse_type",
+    openaireCompatibility = "parse_string",
+    officialName = "parse_string",
+    englishName = "parse_string",
+    websiteUrl = "parse_string",
+    logoUrl = "parse_string",
+    dateOfValidation = "parse_date",
+    description = "parse_string",
+    subjects = "parse_list",
+    languages = "parse_list",
+    contentTypes = "parse_list",
+    releaseStartDate = "parse_date",
+    releaseEndDate = "parse_date",
+    accessRights = "parse_string",
+    uploadRights = "parse_string",
+    databaseAccessRestriction = "parse_string",
+    dataUploadRestriction = "parse_string",
+    versioning = "parse_bool",
+    citationGuidelineUrl = "parse_string",
+    pidSystems = "parse_string",
+    certificates = "parse_string",
+    policies = "parse_list",
+    journal = "parse_journal",
+    missionStatementUrl = "parse_string"
+  )
 }
