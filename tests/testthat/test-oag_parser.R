@@ -40,8 +40,8 @@ test_that("Parsing functions work (research products", {
       "research-products",
       type = "software",
       relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-", month, "-", day_from),
-      toPublicationDate = paste0(year, "-", month, "-", day_to),
+      fromPublicationDate = paste0(year, "-01-01"),
+      toPublicationDate = paste0(year, "-03-30"),
       options = oag_options(pageSize = 100, cursor = TRUE)
     )
   )
@@ -51,36 +51,44 @@ test_that("Parsing functions work (research products", {
       "research-products",
       type = "other",
       relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-", month, "-", day_from),
-      toPublicationDate = paste0(year, "-", month, "-", day_to),
+      fromPublicationDate = paste0(year, "-01-01"),
+      toPublicationDate = paste0(year, "-02-30"),
       options = oag_options(pageSize = 100, cursor = TRUE)
     )
   )
 
   expect_no_error(
     parsed_pub <- suppressMessages(
-      parse_research_products(snsf_pub, type = "publication")
+      oag_parse_object(
+        snsf_pub,
+        entity = "research-products",
+        type = "publication"
+      )
     )
   )
   expect_equal(length(snsf_pub), nrow(parsed_pub))
 
   expect_no_error(
     parsed_ds <- suppressMessages(
-      parse_research_products(snsf_ds, type = "dataset")
+      oag_parse_object(snsf_ds, entity = "research-products", type = "dataset")
     )
   )
   expect_equal(length(snsf_ds), nrow(parsed_ds))
 
   expect_no_error(
     parsed_soft <- suppressMessages(
-      parse_research_products(snsf_soft, type = "software")
+      oag_parse_object(
+        snsf_soft,
+        entity = "research-products",
+        type = "software"
+      )
     )
   )
   expect_equal(length(snsf_soft), nrow(parsed_soft))
 
   expect_no_error(
     parsed_other <- suppressMessages(
-      parse_research_products(snsf_other, type = "other")
+      oag_parse_object(snsf_other, entity = "research-products", type = "other")
     )
   )
   expect_equal(length(snsf_other), nrow(parsed_other))
@@ -100,7 +108,10 @@ test_that("Parsing functions work (organizations)", {
   samp <- sample(seq_along(res_orgs), 100)
 
   expect_no_error(
-    parsed_orgs <- suppressMessages(parse_entity_organizations(res_orgs[samp]))
+    parsed_orgs <- suppressMessages(oag_parse_object(
+      res_orgs[samp],
+      entity = "organizations"
+    ))
   )
 
   expect_equal(length(res_orgs[samp]), nrow(parsed_orgs))
@@ -121,7 +132,10 @@ test_that("Parsing functions work (projects)", {
   samp <- sample(seq_along(res_proj), 100)
 
   expect_no_error(
-    parsed_proj <- suppressMessages(parse_entity_projects(res_proj[samp]))
+    parsed_proj <- suppressMessages(oag_parse_object(
+      res_proj[samp],
+      entity = "projects"
+    ))
   )
 
   expect_equal(length(res_proj[samp]), nrow(parsed_proj))
@@ -139,7 +153,10 @@ test_that("Parsing functions work (persons)", {
   )
 
   expect_no_error(
-    parsed_prsn <- suppressMessages(parse_entity_projects(res_prsn))
+    parsed_prsn <- suppressMessages(oag_parse_object(
+      res_prsn,
+      entity = "persons"
+    ))
   )
 
   expect_equal(length(res_prsn), nrow(parsed_prsn))
@@ -156,7 +173,12 @@ test_that("Parsing functions work (datasources)", {
     )
   )
 
-  expect_no_error(parsed_ds <- suppressMessages(parse_entity_persons(res_ds)))
+  expect_no_error(
+    parsed_ds <- suppressMessages(oag_parse_object(
+      res_ds,
+      entity = "datasources"
+    ))
+  )
 
   expect_equal(length(res_ds), nrow(parsed_ds))
 })
