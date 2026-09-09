@@ -647,7 +647,8 @@ parse_proj_funding <- function(res, var = "funding") {
   } else {
     tibble::tibble(
       funder_id = res[[var]][["funder"]][["id"]] %||% NA_character_,
-      funder_shortname = res[[var]][["funder"]][["shortname"]] %||% NA_character_,
+      funder_shortname = res[[var]][["funder"]][["shortname"]] %||%
+        NA_character_,
       funder_name = res[[var]][["funder"]][["name"]] %||% NA_character_,
       funder_jurisdiction_code = res[[var]][["funder"]][["jurisdiction"]][[
         "code"
@@ -661,21 +662,24 @@ parse_proj_funding <- function(res, var = "funding") {
       level0 = list(
         tibble::tibble(
           id = res[[var]][["level0"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level0"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level0"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level0"]][["name"]] %||% NA_character_
         )
       ),
       level1 = list(
         tibble::tibble(
           id = res[[var]][["level1"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level1"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level1"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level1"]][["name"]] %||% NA_character_
         )
       ),
       level2 = list(
         tibble::tibble(
           id = res[[var]][["level2"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level2"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level2"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level2"]][["name"]] %||% NA_character_
         )
       )
