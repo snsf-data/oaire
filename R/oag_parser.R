@@ -993,6 +993,23 @@ init_proj_df <- function(selection = NULL) {
   proj_df
 }
 
+#' @rdname init_res_prod_df
+#' @keywords internal
+
+init_prsn_df <- function(selection = NULL) {
+  # fmt: skip
+  # Empty tibble with the variables of the persons entity
+  proj_df <- tibble::tribble(
+    ~id, ~originalId, ~givenName, ~familyName, ~alternativeNames, ~biography,
+    ~subject, ~indicator, ~context, ~consent, ~coAuthors
+  )
+  if (!is.null(selection)) {
+    proj_df <- proj_df[, colnames(proj_df) %in% selection]
+  }
+
+  proj_df
+}
+
 #==============================================================================|
 #                               ---- Helpers ----
 #==============================================================================|
