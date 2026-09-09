@@ -251,7 +251,7 @@ parse_entity_organizations <- function(object, selection = NULL) {
 #' @export
 
 parse_entity_projects <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the organizations type already
+  # Initiate an empty table with the variable of the projects type already
   # set.
   res_proj_df <- init_proj_df(selection)
 
@@ -260,7 +260,7 @@ parse_entity_projects <- function(object, selection = NULL) {
     selection <- colnames(res_proj_df)
   }
 
-  # Named vector where the names are the organizations variables and the value
+  # Named vector where the names are the projects variables and the value
   # their corresponding parser.
   vars_with_fn <- c(
     id = "parse_string",
@@ -331,7 +331,7 @@ parse_entity_projects <- function(object, selection = NULL) {
 #' @export
 
 parse_entity_persons <- function(object, selection = NULL) {
-  # Initiate an empty table with the variable of the organizations type already
+  # Initiate an empty table with the variable of the persons type already
   # set.
   res_prsn_df <- init_prsn_df(selection)
 
@@ -340,7 +340,7 @@ parse_entity_persons <- function(object, selection = NULL) {
     selection <- colnames(res_prsn_df)
   }
 
-  # Named vector where the names are the organizations variables and the value
+  # Named vector where the names are the persons variables and the value
   # their corresponding parser.
   vars_with_fn <- c(
     id = "parse_string",
