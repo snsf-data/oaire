@@ -772,6 +772,18 @@ parse_context <- function(res, var = "context") {
 }
 
 #' @keywords internal
+parse_indicator <- function(res, var = "indicator") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      citationCount = res[[var]][["citationCount"]] %||% NA_integer_,
+      downloads = res[[var]][["downloads"]] %||% NA_integer_
+    )
+  }
+}
+
+#' @keywords internal
 parse_indicators <- function(res, var = "indicators") {
   if (is.null(res[[var]])) {
     NULL
