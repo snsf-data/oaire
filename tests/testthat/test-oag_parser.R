@@ -107,3 +107,26 @@ test_that("Parsing functions work (organizations)", {
 
   expect_equal(length(res_orgs[samp]), nrow(parsed_orgs))
 })
+
+test_that("Parsing functions work (projects)", {
+  skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
+
+  res_proj <- suppressMessages(
+    oag_fetch(
+      "projects",
+      fundingShortName = "SNSF",
+      startYear = "2025",
+      options = oag_options(pageSize = 100, cursor = TRUE)
+    )
+  )
+
+  samp <- sample(seq_along(res_proj), 100)
+
+  expect_no_error(
+    parsed_proj <- suppressMessages(
+      parse_entity_projects(res_proj[samp])
+    )
+  )
+
+  expect_equal(length(res_proj[samp]), nrow(parsed_proj))
+})

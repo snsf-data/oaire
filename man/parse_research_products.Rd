@@ -3,6 +3,7 @@
 \name{parse_research_products}
 \alias{parse_research_products}
 \alias{parse_entity_organizations}
+\alias{parse_entity_projects}
 \title{Parse the research products objects}
 \usage{
 parse_research_products(
@@ -12,6 +13,8 @@ parse_research_products(
 )
 
 parse_entity_organizations(object, selection = NULL)
+
+parse_entity_projects(object, selection = NULL)
 }
 \arguments{
 \item{object}{An OpenAIRE Graph object as returned by \code{oag_fetch()} or
@@ -40,7 +43,7 @@ res_prod <-  oag_fetch(
   options = oag_options(pageSize = 100, cursor = TRUE)
 )
 
-# Parsing the returned research products objects
+# Parsing the returned research products object
 res_prod_df <- parse_research_products(res_prod, type = "publication")
 
 # Fetch some "organizations" data from the OpenAIRE Graph
@@ -50,7 +53,18 @@ res_org <- oag_fetch(
   options = oag_options(pageSize = 100, cursor = TRUE)
 )
 
-# Parsing the returned organizations objects
+# Parsing the returned organizations object
 res_org_df <- parse_entity_organizations(res_org)
+
+# Fetch some "projects" data from the OpenAIRE Graph
+res_proj <- oag_fetch(
+  "projects",
+  fundingShortName = "SNSF",
+  startYear = "2025",
+  options = oag_options(pageSize = 100, cursor = TRUE)
+)
+
+# Parsing the returned projects object
+res_proj_df <- parse_entity_projects(res_proj)
 }
 }
