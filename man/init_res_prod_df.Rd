@@ -5,6 +5,7 @@
 \alias{init_data_sources_df}
 \alias{init_orgs_df}
 \alias{init_proj_df}
+\alias{init_prsn_df}
 \title{Initiate an empty tibble to used to store parsed entities objects}
 \usage{
 init_res_prod_df(
@@ -17,6 +18,8 @@ init_data_sources_df(selection = NULL)
 init_orgs_df(selection = NULL)
 
 init_proj_df(selection = NULL)
+
+init_prsn_df(selection = NULL)
 }
 \arguments{
 \item{type}{A string with the type of research products to extract}

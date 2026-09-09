@@ -48,6 +48,16 @@
 #'
 #' # Parsing the returned projects object
 #' res_proj_df <- parse_entity_projects(res_proj)
+#'
+#' # Fetch some "persons" data from the OpenAIRE Graph
+#' res_prsn <- oag_fetch(
+#'   "persons",
+#'   lastName = "Gorin",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned projects object
+#' res_prsn_df <- parse_entity_persons(res_prsn)
 #' }
 
 parse_research_products <- function(
@@ -87,7 +97,7 @@ parse_research_products <- function(
     embargoEndDate = "parse_date",
     indicators = "parse_indicators",
     instances = "parse_instances",
-    language = "parse_list",
+    language = "parse_language",
     lastUpdateTimeStamp = "parse_string",
     pids = "parse_pids",
     publicationDate = "parse_date",
@@ -317,6 +327,80 @@ parse_entity_projects <- function(object, selection = NULL) {
   res_proj_df
 }
 
+#' @rdname parse_research_products
+#' @export
+
+parse_entity_persons <- function(object, selection = NULL) {
+  # Initiate an empty table with the variable of the organizations type already
+  # set.
+  res_prsn_df <- init_prsn_df(selection)
+
+  if (is.null(selection)) {
+    # Only keep the variable to parse that are in "selection"
+    selection <- colnames(res_prsn_df)
+  }
+
+  # Named vector where the names are the organizations variables and the value
+  # their corresponding parser.
+  vars_with_fn <- c(
+    id = "parse_string",
+    originalId = "parse_list",
+    givenName = "parse_string",
+    familyName = "parse_string",
+    alternativeNames = "parse_list",
+    biography = "parse_string",
+    subject = "parse_list",
+    indicator = "parse_indicator",
+    context = "parse_context",
+    consent = "parse_bool",
+    coAuthors = "parse_list"
+  )
+
+  # Only keep the variable to parse that are in "selection"
+  vars_with_fn <- vars_with_fn[names(vars_with_fn) %in% selection]
+
+  # Initiate a progress bar for the data parsing process
+  cli::cli_progress_bar(
+    total = length(object),
+    type = "custom",
+    format = paste0(
+      "{cli::pb_spin} Parsed {cli::pb_current} person{?s} out of ",
+      "{length(object)}... {cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+    )
+  )
+
+  # Loop over each element in `object`
+  for (i in seq_along(object)) {
+    cli::cli_progress_update(set = i)
+
+    # Go over all variables to parse and extract structured data from the raw
+    # data.
+    parsed_vars <- lapply(names(vars_with_fn), \(x) {
+      do.call(vars_with_fn[[x]], list(res = object[[i]], var = x))
+    }) |>
+      # Make sure that set to list any data not being a scalar
+      lapply(
+        \(x) {
+          if (rlang::is_scalar_atomic(x)) {
+            x
+          } else {
+            list(x)
+          }
+        }
+      )
+
+    names(parsed_vars) <- names(vars_with_fn)
+
+    # Turn the list of parsed data into a tibble and bind it to the tibble with
+    # the already parsed data.
+    vars_df <- tibble::as_tibble(parsed_vars)
+    res_prsn_df <- rbind(res_prsn_df, vars_df)
+  }
+  cli::cli_progress_done()
+
+  res_prsn_df
+}
+
 #==============================================================================|
 #                          ---- Variable parsers ----
 #==============================================================================|
@@ -346,7 +430,7 @@ parse_list <- function(res, var) {
   if (is.null(res[[var]])) {
     NULL
   } else {
-    lapply(null_to_na(res[[var]]), unlist)
+    unlist(null_to_na(res[[var]]))
   }
 }
 
@@ -384,6 +468,18 @@ parse_geo_locations <- function(res, var = "geoLocations") {
       }
     ) |>
       Reduce(x = _, "rbind")
+  }
+}
+
+#' @keywords internal
+parse_language <- function(res, var = "language") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      code = res[[var]][["code"]] %||% NA_character_,
+      label = res[[var]][["label"]] %||% NA_character_
+    )
   }
 }
 
@@ -564,7 +660,8 @@ parse_proj_funding <- function(res, var = "funding") {
   } else {
     tibble::tibble(
       funder_id = res[[var]][["funder"]][["id"]] %||% NA_character_,
-      funder_shortname = res[[var]][["funder"]][["shortname"]] %||% NA_character_,
+      funder_shortname = res[[var]][["funder"]][["shortname"]] %||%
+        NA_character_,
       funder_name = res[[var]][["funder"]][["name"]] %||% NA_character_,
       funder_jurisdiction_code = res[[var]][["funder"]][["jurisdiction"]][[
         "code"
@@ -578,21 +675,24 @@ parse_proj_funding <- function(res, var = "funding") {
       level0 = list(
         tibble::tibble(
           id = res[[var]][["level0"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level0"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level0"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level0"]][["name"]] %||% NA_character_
         )
       ),
       level1 = list(
         tibble::tibble(
           id = res[[var]][["level1"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level1"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level1"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level1"]][["name"]] %||% NA_character_
         )
       ),
       level2 = list(
         tibble::tibble(
           id = res[[var]][["level2"]][["id"]] %||% NA_character_,
-          description = res[[var]][["level2"]][["description"]] %||% NA_character_,
+          description = res[[var]][["level2"]][["description"]] %||%
+            NA_character_,
           name = res[[var]][["level2"]][["name"]] %||% NA_character_
         )
       )
@@ -742,6 +842,32 @@ parse_h2020 <- function(res, var = "h2020Programmes") {
       }
     ) |>
       Reduce(x = _, "rbind")
+  }
+}
+
+
+#' @keywords internal
+parse_context <- function(res, var = "context") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      affiliation = res[[var]][["affiliation"]] %||% NA_character_,
+      department = res[[var]][["department"]] %||% NA_character_,
+      country = res[[var]][["country"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
+parse_indicator <- function(res, var = "indicator") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      citationCount = res[[var]][["citationCount"]] %||% NA_integer_,
+      downloads = res[[var]][["downloads"]] %||% NA_integer_
+    )
   }
 }
 
@@ -947,6 +1073,23 @@ init_proj_df <- function(selection = NULL) {
     ~h2020Programmes, ~funding, ~keywords, ~openAccessMandateForDataset,
     ~openAccessMandateForPublications, ~startDate, ~endDate, ~subjects,
     ~summary, ~websiteUrl
+  )
+  if (!is.null(selection)) {
+    proj_df <- proj_df[, colnames(proj_df) %in% selection]
+  }
+
+  proj_df
+}
+
+#' @rdname init_res_prod_df
+#' @keywords internal
+
+init_prsn_df <- function(selection = NULL) {
+  # fmt: skip
+  # Empty tibble with the variables of the persons entity
+  proj_df <- tibble::tribble(
+    ~id, ~originalId, ~givenName, ~familyName, ~alternativeNames, ~biography,
+    ~subject, ~indicator, ~context, ~consent, ~coAuthors
   )
   if (!is.null(selection)) {
     proj_df <- proj_df[, colnames(proj_df) %in% selection]
