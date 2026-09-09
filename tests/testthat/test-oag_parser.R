@@ -100,9 +100,7 @@ test_that("Parsing functions work (organizations)", {
   samp <- sample(seq_along(res_orgs), 100)
 
   expect_no_error(
-    parsed_orgs <- suppressMessages(
-      parse_entity_organizations(res_orgs[samp])
-    )
+    parsed_orgs <- suppressMessages(parse_entity_organizations(res_orgs[samp]))
   )
 
   expect_equal(length(res_orgs[samp]), nrow(parsed_orgs))
@@ -123,9 +121,7 @@ test_that("Parsing functions work (projects)", {
   samp <- sample(seq_along(res_proj), 100)
 
   expect_no_error(
-    parsed_proj <- suppressMessages(
-      parse_entity_projects(res_proj[samp])
-    )
+    parsed_proj <- suppressMessages(parse_entity_projects(res_proj[samp]))
   )
 
   expect_equal(length(res_proj[samp]), nrow(parsed_proj))
