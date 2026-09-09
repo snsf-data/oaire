@@ -750,143 +750,6 @@ parse_journal <- function(res, var = "journal") {
 }
 
 #==============================================================================|
-#                          ---- Tibble templates ----
-#==============================================================================|
-
-#' Initiate an empty tibble to used to store parsed entities objects
-#'
-#' The function generate an empty tibble that will be used to collect the parsed
-#' data coming from a query to an OpenAIRE Graph entity.
-#' Graph API.
-#'
-#' @param type A string with the type of research products to extract
-#' @param selection A character vector with the variables of the research
-#' products object that should be returned.
-#'
-#' @returns An empty tibble.
-#' @keywords internal
-
-init_res_prod_df <- function(
-  type = c("publication", "dataset", "software", "other"),
-  selection = NULL
-) {
-  type <- rlang::arg_match(
-    type,
-    c("publication", "dataset", "software", "other")
-  )
-  # fmt: skip
-  # Empty tibble with the variables common to all research product types
-  rp_df <- tibble::tribble(
-    ~id, ~type, ~originalIds, ~mainTitle, ~subTitle, ~authors, ~bestAccessRight,
-    ~contributors, ~countries, ~coverages, ~dateOfCollection, ~descriptions,
-    ~embargoEndDate, ~indicators, ~instances, ~language, ~lastUpdateTimeStamp,
-    ~pids, ~publicationDate, ~publisher, ~sources, ~formats, ~subjects,
-    ~isGreen, ~openAccessColor, ~isInDiamondJournal, ~publiclyFunded, ~projects,
-    ~organizations, ~communities, ~collectedFrom
-  )
-
-  # Depending on the research product type, additional variables are added
-  if (type == "publication") {
-    rp_pub_df <- tibble::tribble(~container)
-    rp_df <- tibble::add_column(rp_df, rp_pub_df)
-  } else if (type == "dataset") {
-    rp_data_df <- tibble::tribble(~size, ~version, ~geoLocations)
-    rp_df <- tibble::add_column(rp_df, rp_data_df)
-  } else if (type == "software") {
-    rp_soft_df <- tibble::tribble(
-      ~documentationUrls,
-      ~codeRepositoryUrl,
-      ~programmingLanguage
-    )
-    rp_df <- tibble::add_column(rp_df, rp_soft_df)
-  } else if (type == "other") {
-    rp_other_df <- tibble::tribble(~contactPeople, ~contactGroups, ~tools)
-    rp_df <- tibble::add_column(rp_df, rp_other_df)
-  }
-
-  # Only keep the variables passed to "selection" if not null
-  if (!is.null(selection)) {
-    rp_df <- rp_df[, colnames(rp_df) %in% selection]
-  }
-
-  rp_df
-}
-
-#' @rdname init_res_prod_df
-#' @keywords internal
-
-init_data_sources_df <- function(selection = NULL) {
-  # fmt: skip
-  # Empty tibble with the variables of the data sources entity
-  ds_df <- tibble::tribble(
-    ~id, ~originalIds, ~pids, ~type, ~openaireCompatibility, ~officialName,
-    ~englishName, ~websiteUrl, ~logoUrl, ~dateOfValidation, ~description,
-    ~subjects, ~languages, ~contentTypes, ~releaseStartDate, ~releaseEndDate,
-    ~accessRights, ~uploadRights, ~databaseAccessRestriction,
-    ~dataUploadRestriction, ~versioning, ~citationGuidelineUrl, ~pidSystems,
-    ~certificates, ~policies, ~journal, ~missionStatementUrl
-  )
-  if (!is.null(selection)) {
-    ds_df <- ds_df[, colnames(ds_df) %in% selection]
-  }
-
-  ds_df
-}
-
-#' @rdname init_res_prod_df
-#' @keywords internal
-
-init_orgs_df <- function(selection = NULL) {
-  # fmt: skip
-  # Empty tibble with the variables of the organizations entity
-  orgs_df <- tibble::tribble(
-    ~id, ~legalShortName, ~legalName, ~alternativeNames, ~websiteUrl, ~country,
-    ~pids, ~originalIds, ~fundings, ~collectedFrom
-  )
-  if (!is.null(selection)) {
-    orgs_df <- orgs_df[, colnames(orgs_df) %in% selection]
-  }
-
-  orgs_df
-}
-
-#' @rdname init_res_prod_df
-#' @keywords internal
-
-init_proj_df <- function(selection = NULL) {
-  # fmt: skip
-  # Empty tibble with the variables of the organizations entity
-  proj_df <- tibble::tribble(
-    ~id, ~code, ~acronym, ~title, ~callIdentifier, ~fundings, ~granted,
-    ~h2020Programmes, ~funding, ~keywords, ~openAccessMandateForDataset,
-    ~openAccessMandateForPublications, ~startDate, ~endDate, ~subjects,
-    ~summary, ~websiteUrl
-  )
-  if (!is.null(selection)) {
-    proj_df <- proj_df[, colnames(proj_df) %in% selection]
-  }
-
-  proj_df
-}
-
-#' @rdname init_res_prod_df
-#' @keywords internal
-
-init_prsn_df <- function(selection = NULL) {
-  # fmt: skip
-  # Empty tibble with the variables of the persons entity
-  proj_df <- tibble::tribble(
-    ~id, ~originalId, ~givenName, ~familyName, ~alternativeNames, ~biography,
-    ~subject, ~indicator, ~context, ~consent, ~coAuthors
-  )
-  if (!is.null(selection)) {
-    proj_df <- proj_df[, colnames(proj_df) %in% selection]
-  }
-
-  proj_df
-}
-
-#==============================================================================|
 #                               ---- Helpers ----
 #==============================================================================|
 
@@ -902,4 +765,18 @@ null_to_na <- function(x, na_type = NA_character_) {
   } else {
     lapply(x, \(y) y %||% na_type)
   }
+}
+
+
+  )
+}
+
+  )
+}
+
+  )
+}
+
+}
+
 }
