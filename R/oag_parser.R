@@ -417,7 +417,7 @@ parse_list <- function(res, var) {
   if (is.null(res[[var]])) {
     NULL
   } else {
-    lapply(null_to_na(res[[var]]), unlist)
+    unlist(null_to_na(res[[var]]))
   }
 }
 
