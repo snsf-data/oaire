@@ -87,7 +87,7 @@ parse_research_products <- function(
     embargoEndDate = "parse_date",
     indicators = "parse_indicators",
     instances = "parse_instances",
-    language = "parse_list",
+    language = "parse_language",
     lastUpdateTimeStamp = "parse_string",
     pids = "parse_pids",
     publicationDate = "parse_date",
@@ -384,6 +384,18 @@ parse_geo_locations <- function(res, var = "geoLocations") {
       }
     ) |>
       Reduce(x = _, "rbind")
+  }
+}
+
+#' @keywords internal
+parse_language <- function(res, var = "language") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      code = res[[var]][["code"]] %||% NA_character_,
+      label = res[[var]][["label"]] %||% NA_character_
+    )
   }
 }
 
