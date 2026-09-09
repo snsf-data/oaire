@@ -58,6 +58,16 @@
 #'
 #' # Parsing the returned projects object
 #' res_prsn_df <- parse_entity_persons(res_prsn)
+#'
+#' # Fetch some "persons" data from the OpenAIRE Graph
+#' res_ds <- oag_fetch(
+#'   "datasources",
+#'   country = "CH",
+#'   options = oag_options(pageSize = 100, cursor = TRUE)
+#' )
+#'
+#' # Parsing the returned projects object
+#' res_ds_df <- parse_entity_persons(res_ds)
 #' }
 
 parse_research_products <- function(
@@ -401,6 +411,7 @@ parse_entity_persons <- function(object, selection = NULL) {
   res_prsn_df
 }
 
+#' @rdname parse_research_products
 #' @export
 
 parse_entity_data_sources <- function(object, selection = NULL) {
