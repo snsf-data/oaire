@@ -503,6 +503,18 @@ parse_journal <- function(res, var = "journal") {
 }
 
 #' @keywords internal
+parse_type <- function(res, var = "type") {
+  if (is.null(res[[var]])) {
+    NULL
+  } else {
+    tibble::tibble(
+      scheme = res[[var]][["scheme"]] %||% NA_character_,
+      value = res[[var]][["value"]] %||% NA_character_
+    )
+  }
+}
+
+#' @keywords internal
 parse_instances <- function(res, var = "instances") {
   if (is.null(res[[var]])) {
     NULL
