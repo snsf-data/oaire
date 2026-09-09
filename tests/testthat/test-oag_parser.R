@@ -130,3 +130,21 @@ test_that("Parsing functions work (projects)", {
 
   expect_equal(length(res_proj[samp]), nrow(parsed_proj))
 })
+
+test_that("Parsing functions work (persons)", {
+  skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
+
+  res_prsn <- suppressMessages(
+    oag_fetch(
+      "persons",
+      lastName = "Gorin",
+      options = oag_options(pageSize = 100, cursor = TRUE)
+    )
+  )
+
+  expect_no_error(
+    parsed_prsn <- suppressMessages(parse_entity_projects(res_prsn))
+  )
+
+  expect_equal(length(res_prsn), nrow(parsed_prsn))
+})
