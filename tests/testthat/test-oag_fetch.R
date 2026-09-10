@@ -997,7 +997,6 @@ test_that("oag_fetch() is successful when query is correctly formatted", {
 
   # Test that setting no options works with the default pageSize
   default_ps <- oag_fetch("persons", lastName = "Gorin")
-
 })
 
 # Tests for URL format in `oag_request()` --------------------------------------

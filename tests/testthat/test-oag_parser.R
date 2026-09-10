@@ -289,7 +289,7 @@ test_that("Parsing functions work (research products", {
     oag_parse_object(
       oag_orgs,
       entity = "organizations",
-        selection = names(get_prod_vars())
+      selection = names(get_prod_vars())
     ),
     "variables.+are.+not.+valid.+for.+an.+organizations.+object"
   )
@@ -323,5 +323,4 @@ test_that("Parsing functions work (research products", {
     entity = "projects",
     selection = names(get_proj_vars())
   )
-
 })

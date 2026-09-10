@@ -223,10 +223,7 @@ oag_fetch <- function(
     query_1_n <- oag_query(
       entity = entity,
       ...,
-      options = oag_options(
-        page = 1,
-        pageSize = 1
-      )
+      options = oag_options(page = 1, pageSize = 1)
     )
 
     # If no pageSize option has been provided, we set it to 10 (default when
