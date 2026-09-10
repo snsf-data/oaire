@@ -214,6 +214,8 @@ oag_fetch <- function(
     req <- oag_request(oag_query(entity, ..., options = options), token = token)
     # Extract the results from the returned object
     res <- req[["results"]]
+    # Add the header details as an attribute to the returned object
+    attr(res, "numFound") <- req[["header"]][["numFound"]]
   } else {
     # Else, we use paging. To know how many records (and thus pages) have to be
     # accessed, we make a dry run with the filters passed by the user but for a
@@ -290,6 +292,9 @@ oag_fetch <- function(
     # Flatten the results from all pages (but it is still a difficult JSON
     # object to handle though).
     res <- unlist(lapply(res, \(x) x[["results"]]), recursive = FALSE)
+
+    # Add the header details as an attribute to the returned object
+    attr(res, "numFound") <- res_query_1_n[["header"]][["numFound"]]
   }
 
   res
