@@ -4,6 +4,7 @@
 
 #' Parse the research products objects
 #'
+#' @inheritParams oag_api_url
 #' @param object An OpenAIRE Graph object as returned by `oag_fetch()` or
 #' `oag_request()`.
 #' @param type A string with the type of research product contained in `object`

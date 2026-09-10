@@ -6,7 +6,7 @@
 \usage{
 oag_parse_object(
   object,
-  entity,
+  entity = NULL,
   selection = NULL,
   type = c("publication", "dataset", "software", "other")
 )
@@ -14,6 +14,9 @@ oag_parse_object(
 \arguments{
 \item{object}{An OpenAIRE Graph object as returned by \code{oag_fetch()} or
 \code{oag_request()}.}
+
+\item{entity}{A string with the entity to query. It must match an entity
+returned by \code{oag_entities()}.}
 
 \item{selection}{A character vector with the variables to select in the
 OpenAIRE Graph object passed to \code{object}.}
