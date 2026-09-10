@@ -248,18 +248,25 @@ oag_fetch <- function(
     # Inform user when the number of tokens available is smaller than required
     # to fetch all the data.
     if (n_query > n_tokens) {
-      cli::cli_warn(
-        c(
-          paste0(
-            "The number of requests ({n_query}) is greater than the number of ",
-            "available requests ({n_tokens})."
-          ),
-          i = paste0(
-            "It is likely that the data fetching will pause at some point to ",
-            "comply with the API terms of use."
-          )
+      cli::cli_alert_warning(
+        paste0(
+          "The number of requests ({prettyNum(n_query, big.mark = \"'\")}) ",
+          "is greater than the number of available requests ",
+          "({prettyNum(n_tokens, big.mark = \"'\")})."
         )
       )
+      # If the session is interactive, ask the user whether to continue fetching
+      # the data or not.
+      if (interactive()) {
+        continue <- readline("Do you want to continue? (y/n): ")
+        while (!(continue %in% c("y", "n"))) {
+          continue <- readline("Answer with \"y\" or \"n\": ")
+        }
+        if (identical(continue, "n")) {
+          cli::cli_alert_danger("Process aborted!")
+          return(invisible())
+        }
+      }
     }
 
     res <- list()
