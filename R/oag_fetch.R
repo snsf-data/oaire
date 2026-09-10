@@ -229,6 +229,12 @@ oag_fetch <- function(
       )
     )
 
+    # If no pageSize option has been provided, we set it to 10 (default when
+    # querying the OpenAIRE Graph API).
+    if (is.null(options)) {
+      options <- oag_options(pageSize = 10)
+    }
+
     # Access the number of records and compute, given the page size, the
     # required number of pages to query to get all the records.
     res_query_1_n <- oag_request(query_1_n, token = token)
