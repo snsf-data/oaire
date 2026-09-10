@@ -211,7 +211,11 @@ oag_fetch <- function(
   invisible(oag_query(entity, ..., options = options))
   # If page is not NULL we simply fetch the data for that single page
   if (!is.null(options[["page"]])) {
-    res <- oag_request(oag_query(entity, ..., options = options), token = token)
+    req <- oag_request(oag_query(entity, ..., options = options), token = token)
+    # Extract the results from the returned object
+    res <- req[["results"]]
+    # Add the header details as an attribute to the returned object
+    attr(res, "numFound") <- req[["header"]][["numFound"]]
   } else {
     # Else, we use paging. To know how many records (and thus pages) have to be
     # accessed, we make a dry run with the filters passed by the user but for a
@@ -219,11 +223,14 @@ oag_fetch <- function(
     query_1_n <- oag_query(
       entity = entity,
       ...,
-      options = oag_options(
-        page = 1,
-        pageSize = 1
-      )
+      options = oag_options(page = 1, pageSize = 1)
     )
+
+    # If no pageSize option has been provided, we set it to 10 (default when
+    # querying the OpenAIRE Graph API).
+    if (is.null(options)) {
+      options <- oag_options(pageSize = 10)
+    }
 
     # Access the number of records and compute, given the page size, the
     # required number of pages to query to get all the records.
@@ -238,18 +245,25 @@ oag_fetch <- function(
     # Inform user when the number of tokens available is smaller than required
     # to fetch all the data.
     if (n_query > n_tokens) {
-      cli::cli_warn(
-        c(
-          paste0(
-            "The number of requests ({n_query}) is greater than the number of ",
-            "available requests ({n_tokens})."
-          ),
-          i = paste0(
-            "It is likely that the data fetching will pause at some point to ",
-            "comply with the API terms of use."
-          )
+      cli::cli_alert_warning(
+        paste0(
+          "The number of requests ({prettyNum(n_query, big.mark = \"'\")}) ",
+          "is greater than the number of available requests ",
+          "({prettyNum(n_tokens, big.mark = \"'\")})."
         )
       )
+      # If the session is interactive, ask the user whether to continue fetching
+      # the data or not.
+      if (interactive()) {
+        continue <- readline("Do you want to continue? (y/n): ")
+        while (!(continue %in% c("y", "n"))) {
+          continue <- readline("Answer with \"y\" or \"n\": ")
+        }
+        if (identical(continue, "n")) {
+          cli::cli_alert_danger("Process aborted!")
+          return(invisible())
+        }
+      }
     }
 
     res <- list()
@@ -288,9 +302,13 @@ oag_fetch <- function(
     # Flatten the results from all pages (but it is still a difficult JSON
     # object to handle though).
     res <- unlist(lapply(res, \(x) x[["results"]]), recursive = FALSE)
+
+    # Add the header details as an attribute to the returned object
+    attr(res, "numFound") <- res_query_1_n[["header"]][["numFound"]]
   }
 
-  res
+  attr(res, "entity") <- entity
+  structure(res, class = c("oag_object", "list"))
 }
 
 #' Perform the request to the OpenAIRE Graph API
