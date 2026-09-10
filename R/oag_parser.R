@@ -122,6 +122,14 @@ oag_parse_object <- function(
   # Only keep the variable to parse that are in "selection"
   if (is.null(selection)) {
     selection <- names(vars_with_fn)
+  } else if (!all(selection %in% names(vars_with_fn))) {
+    non_valid_selection <- selection[!(selection %in% names(vars_with_fn))]
+    cli::cli_abort(
+      paste0(
+        "{.var {non_valid_selection}} variable{?s} {?is/are} not valid for an ",
+        "\"{entity}\" object."
+      )
+    )
   }
 
   # Only keep the variables to parse that are in "selection"
