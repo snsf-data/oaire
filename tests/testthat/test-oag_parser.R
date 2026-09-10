@@ -1,60 +1,26 @@
+# Tests for `oag_parse_object()` -----------------------------------------------
+
+oag_opts <- oag_options(pageSize = 100, page = 1)
+
+## Success ----
+
 test_that("Parsing functions work (research products", {
   skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
 
-  day_from <- sample(1:22, 1)
-  day_to <- day_from + 6
-  day_from <- as.character(ifelse(
-    day_from < 10,
-    paste0("0", day_from),
-    day_from
-  ))
-  day_to <- as.character(ifelse(day_to < 10, paste0("0", day_to), day_to))
-  month <- sample(1:12, 1)
-  month <- as.character(ifelse(month < 10, paste0("0", month), month))
-  year <- as.character(sample(2023:2025, 1))
-
-  snsf_pub <- suppressMessages(
-    oag_fetch(
-      "research-products",
-      type = "publication",
-      relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-", month, "-", day_from),
-      toPublicationDate = paste0(year, "-", month, "-", day_to),
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
+  oag_pub <- suppressMessages(
+    oag_fetch("research-products", type = "publication", options = oag_opts)
   )
 
-  snsf_ds <- suppressMessages(
-    oag_fetch(
-      "research-products",
-      type = "dataset",
-      relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-", month, "-", day_from),
-      toPublicationDate = paste0(year, "-", month, "-", day_to),
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
+  oag_ds <- suppressMessages(
+    oag_fetch("research-products", type = "dataset", options = oag_opts)
   )
 
-  snsf_soft <- suppressMessages(
-    oag_fetch(
-      "research-products",
-      type = "software",
-      relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-01-01"),
-      toPublicationDate = paste0(year, "-03-30"),
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
+  oag_soft <- suppressMessages(
+    oag_fetch("research-products", type = "software", options = oag_opts)
   )
 
-  snsf_other <- suppressMessages(
-    oag_fetch(
-      "research-products",
-      type = "other",
-      relProjectFundingShortName = "SNSF",
-      fromPublicationDate = paste0(year, "-01-01"),
-      toPublicationDate = paste0(year, "-02-30"),
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
+  oag_other <- suppressMessages(
+    oag_fetch("research-products", type = "other", options = oag_opts)
   )
 
   expect_no_error(
@@ -97,15 +63,7 @@ test_that("Parsing functions work (research products", {
 test_that("Parsing functions work (organizations)", {
   skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
 
-  res_orgs <- suppressMessages(
-    oag_fetch(
-      "organizations",
-      countryCode = "BE",
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
-  )
-
-  samp <- sample(seq_along(res_orgs), 100)
+  res_orgs <- suppressMessages(oag_fetch("organizations", options = oag_opts))
 
   expect_no_error(
     parsed_orgs <- suppressMessages(oag_parse_object(
@@ -120,16 +78,7 @@ test_that("Parsing functions work (organizations)", {
 test_that("Parsing functions work (projects)", {
   skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
 
-  res_proj <- suppressMessages(
-    oag_fetch(
-      "projects",
-      fundingShortName = "SNSF",
-      startYear = "2025",
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
-  )
-
-  samp <- sample(seq_along(res_proj), 100)
+  res_proj <- suppressMessages(oag_fetch("projects", options = oag_opts))
 
   expect_no_error(
     parsed_proj <- suppressMessages(oag_parse_object(
@@ -144,13 +93,7 @@ test_that("Parsing functions work (projects)", {
 test_that("Parsing functions work (persons)", {
   skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
 
-  res_prsn <- suppressMessages(
-    oag_fetch(
-      "persons",
-      lastName = "Gorin",
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
-  )
+  res_prsn <- suppressMessages(oag_fetch("persons", options = oag_opts))
 
   expect_no_error(
     parsed_prsn <- suppressMessages(oag_parse_object(
@@ -165,13 +108,7 @@ test_that("Parsing functions work (persons)", {
 test_that("Parsing functions work (datasources)", {
   skip_if_not(nzchar(Sys.getenv("oag_api_refresh_token")))
 
-  res_ds <- suppressMessages(
-    oag_fetch(
-      "datasources",
-      country = "CH",
-      options = oag_options(pageSize = 100, cursor = TRUE)
-    )
-  )
+  res_ds <- suppressMessages(oag_fetch("datasources", options = oag_opts))
 
   expect_no_error(
     parsed_ds <- suppressMessages(oag_parse_object(
