@@ -297,7 +297,8 @@ oag_fetch <- function(
     attr(res, "numFound") <- res_query_1_n[["header"]][["numFound"]]
   }
 
-  res
+  attr(res, "entity") <- entity
+  structure(res, class = c("oag_object", "list"))
 }
 
 #' Perform the request to the OpenAIRE Graph API
