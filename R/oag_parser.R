@@ -76,10 +76,31 @@
 
 oag_parse_object <- function(
   object,
-  entity,
+  entity = NULL,
   selection = NULL,
   type = c("publication", "dataset", "software", "other")
 ) {
+  if (inherits(object, "oag_object")) {
+    entity <- attr(object, "entity")
+  } else if (is.null(entity)) {
+    cli::cli_abort(
+      paste0(
+        "{.arg entity} cannot be NULL when {.arg object} is not an object of ",
+        "class {.cls oag_object}"
+      )
+    )
+  } else {
+    entity <- rlang::arg_match(entity, oag_entities())
+  }
+
+  # Make sure `selection is a character vector`
+  if (
+    !is.null(selection) &&
+      (!rlang::is_bare_character(selection) || !rlang::is_vector(selection))
+  ) {
+    rlang::abort("`selection` must be a character vector.")
+  }
+
   type <- rlang::arg_match(
     type,
     c("publication", "dataset", "software", "other")
