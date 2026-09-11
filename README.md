@@ -34,7 +34,7 @@ You can install the latest or development version of `oaire` like so:
 
 ``` r
 # install.packages("pak")
-pak::pak("snsf-data/oaire@v0.0.1") # latest version
+pak::pak("snsf-data/oaire@v0.0.2") # latest version
 ```
 
 Or you can install the development version with:
@@ -98,7 +98,7 @@ n_pub <- oag_fetch(
 
 # Print the number of records in the database corresponding to the above filter
 attr(n_pub, "numFound")
-#> [1] 238512838
+#> [1] 238512968
 ```
 
 Maybe we are interested in dataset that were published on 15 January
@@ -192,7 +192,7 @@ ds_or_soft <- oag_fetch(
 
 # Print the number of records in the database corresponding to the above filter
 attr(ds_or_soft, "numFound")
-#> [1] 109227595
+#> [1] 109227667
 ```
 
 Since there are only four types of research products, we can also negate
@@ -212,7 +212,7 @@ not_pub_or_other <- oag_fetch(
 
 # Print the number of records in the database corresponding to the above filter
 attr(not_pub_or_other, "numFound")
-#> [1] 109227595
+#> [1] 109227667
 ```
 
 ## Parsing objects returned by the OpenAIRE Graph

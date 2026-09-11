@@ -39,7 +39,7 @@ You can install the latest or development version of `oaire` like so:
 
 ``` r
 # install.packages("pak")
-pak::pak("snsf-data/oaire@v0.0.1") # latest version
+pak::pak("snsf-data/oaire@v0.0.2") # latest version
 ```
 
 Or you can install the development version with:
