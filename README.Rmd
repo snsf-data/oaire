@@ -21,16 +21,17 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The `oaire` package offers an interface between R and the [OpenAIRE Graph API version 3](https://graph.openaire.eu/docs/apis/graph-api/). The package is built around four main functions:
+The `oaire` package offers an interface between R and the [OpenAIRE Graph API version 3](https://graph.openaire.eu/docs/apis/graph-api/). The package is built around five main functions:
 
 -   `oag_query()` to build a valid query
 -   `oag_options()` to set the options of a query (sorting, paging...)
 -   `oag_request()` to send a request to the OpenAIRE Graph API
--   `oag_fetch()` to wrap in a single function building a query, making a request, and getting the data from the API
+-   `oag_fetch()` to wrap in a single call building a query, making a request, and getting the data from the API
+-   `oag_parse_object()` to parse an object returned by `oag_request()`/`oag_fetch()` and turn it into a `tibble`
 
 The most straightforward approach is to use `oag_fetch()` combined with `oag_options()`. Another approach is to make your own workflow: 1) building a query with `oa_query()`, 2) specifying options with `oag_options()` if necessary, 3) sending a request to the API with `oag_request()`.
 
-The advantage of using `oag_fetch()` is that it handles paging automatically. `oag_query()` combined with `oag_request()` is better suited to retrieve a single page and/or get the number of records associated to a specific query.
+The advantage of using `oag_fetch()` is that it handles paging automatically.
 
 ## Installation
 
@@ -39,6 +40,12 @@ You can install the latest or development version of `oaire` like so:
 ``` r
 # install.packages("pak")
 pak::pak("snsf-data/oaire@v0.0.1") # latest version
+```
+
+Or you can install the development version with:
+
+``` r
+# install.packages("pak")
 pak::pak("snsf-data/oaire") # development version
 ```
 
@@ -64,27 +71,26 @@ oag_api_refresh_token="<YOUR_REFRESH_TOKEN>"
 
 The OpenAIRE Graph API works around the idea of entities and filters. Entities have their own endpoints (see the [documentation of the OpenAIRE Graph API](https://graph.openaire.eu/docs/apis/home) for a list of the different entities and their respective filters).
 
-In the following example, we query the "research-products" entity, requesting to return only the first record for the type "publication". By looking at the header of the server's response, we can know how many "publications" the database contains.
+In the following example, we query the "research-products" entity `oag_fetch()` and request to only return the first record for the type "publication". The object returned `oag_fetch()` is of class `"oag_object"` and has an `"numFound"` attribute containing how many records for the corresponding filter are in the database.
 
 ```{r}
 library(oaire)
 
 # Get the the first record of the research product type "publication"
-n_pub <- oag_query(
+n_pub <- oag_fetch(
   entity = "research-products",
   type = "publication",
   options = oag_options(page = 1, pageSize = 1)
-) |>
-  oag_request()
+)
 
-# Print the number of records available in the response's header
-n_pub[["header"]][["numFound"]]
+# Print the number of records in the database corresponding to the above filter
+attr(n_pub, "numFound")
 ```
 
-Maybe we are interested in dataset that were published on 15 January 2026:
+Maybe we are interested in dataset that were published on 15 January 2026. Here, we will use `oag_query()` + `oag_request()` to show the difference. `oag_request()` returns the results from the query to the API as a list of length 2 containing the header and the results.
 
 ```{r}
-# Get the the first record of the research product type "publication", published
+# Get the the first record of the research product type "dataset", published
 # on 15 January 2026.
 n_pub_2026_15_01 <- oag_query(
   entity = "research-products",
@@ -95,11 +101,11 @@ n_pub_2026_15_01 <- oag_query(
 ) |>
   oag_request()
 
-# Print the number of records available in the response's header
+# Print the number of records in the database corresponding to the above filter
 n_pub_2026_15_01[["header"]][["numFound"]]
 ```
 
-The results from the last query shows that the number of records is reasonable enough to consider using paging to fetch in a single call all the data related to the datasets published on 15 January 2026. In the example below, we use offset-based paging, setting the number of records returned per page to 100 (the maximum allowed by the OpenAIRE Graph API): 
+The results from the last query shows that the number of records is reasonable enough to consider using paging to fetch in a single call all the metadata for the datasets published on 15 January 2026. In the example below, we use offset-based paging, setting the number of records returned per page to 100 (the maximum allowed by the OpenAIRE Graph API).
 
 ```{r}
 # Fetch data for datasets published on 15 January 2026, sorted by descending
@@ -113,7 +119,7 @@ datasets_2026_15_01_offset <- oag_fetch(
 )
 ```
 
-Offset-based paging is limited to small dataset of 10'000 records maximum, with the numbers of records being defined by the product of the `size` and `pageSize` options. When the dataset is larger than 10'000 records, cursor-based paging should be used. The example above can be reproduced using cursor-based paging by setting `cursor = TRUE` in `oag_options()`:
+Offset-based paging is limited to small dataset of 10'000 records, with the numbers of records being defined as the product of the `size` and `pageSize` options. When the dataset is larger than 10'000 records, cursor-based paging should be used. The example above can be reproduced using cursor-based paging by setting `cursor = TRUE` in `oag_options()`:
 
 ```{r}
 # Fetch data for datasets published on 15 January 2026, sorted by descending
@@ -133,22 +139,21 @@ datasets_2026_15_01_cursor <- oag_fetch(
 
 More complex queries can be constructed using logical operators. For example, we could search for software in addition to datasets by combining the two types with an "OR" logical operator: `"dataset" OR "software"`. However, the OpenAIRE Graph API requires that values used with logical operators are wrapped with double quotes, which requires to escape them when creating the string passed to the "type" filter: `type = "\"dataset\" OR \"software\""`. To reduce the inconvenience, `oaire` provides a family of concatenation functions allowing to add "AND" (`concat_and()`), "OR" (`concat_or()`), and "NOT" (`concat_not()`) logical operators.
 
-In the next example, we create a filter to find any "dataset" or "software" research product type, and use it to fetch data from the OpenAIRE Graph API.
+In the next example, we create a filter to find any "dataset" or "software" in the "research-product" entity, and use it to fetch data from the OpenAIRE Graph API.
 
 ```{r}
 # Concatenate the strings "dataset" and "software" with "OR"
 ds_and_soft <- concat_or("dataset", "software")
 
 # We fetch the data using the `ds_and_soft` string passed to the "type" filter
-ds_or_soft_2026_15_01 <- oag_query(
+ds_or_soft <- oag_fetch(
   entity = "research-products",
   type = ds_and_soft,
   options = oag_options(page = 1, pageSize = 1)
-) |>
-  oag_request()
+)
 
-# Print the number of records available in the response's header
-ds_or_soft_2026_15_01[["header"]][["numFound"]]
+# Print the number of records in the database corresponding to the above filter
+attr(ds_or_soft, "numFound")
 ```
 
 Since there are only four types of research products, we can also negate the two others to get the same results.
@@ -159,13 +164,49 @@ not_others_or_pub <- concat_not(concat_or("publication", "other"))
 
 # We fetch the data using the `not_others_or_pub` string passed to the "type"
 # filter.
-not_pub_or_other_2026_15_01 <- oag_query(
+not_pub_or_other <- oag_fetch(
   entity = "research-products",
   type = ds_and_soft,
   options = oag_options(page = 1, pageSize = 1)
-) |>
-  oag_request()
+)
 
-# Print the number of records available in the response's header
-not_pub_or_other_2026_15_01[["header"]][["numFound"]]
+# Print the number of records in the database corresponding to the above filter
+attr(not_pub_or_other, "numFound")
+```
+
+## Parsing objects returned by the OpenAIRE Graph
+
+The `oag_parse_object()` function can be used to parse the data in the objects returned by the OpenAIRE Graph API. You can directly pipe the results from `oag_fetch()` to `oag_parse_object()` without the need to specify the entity since the object returned by `oag_fetch()` has an `"entity"` attribute that is used by `oag_parse_object()` to know how to parse the data.
+
+```{r}
+attr(datasets_2026_15_01_cursor, "entity")
+```
+
+How and what data are parsed by `oag_parse_object()` is based on the properties of the different object described in the OpenAIRE Graph data model (see the description of [entities' properties](https://graph.openaire.eu/docs/category/entities) for more details).
+
+In the example below, we fetch data on software published in January 2026.
+
+```{r}
+software_2026_15_01 <- oag_fetch(
+  entity = "research-products",
+  type = "software",
+  fromPublicationDate = "2026-01-15",
+  toPublicationDate = "2026-01-15",
+  options = oag_options(pageSize = 100, cursor = TRUE)
+)
+```
+
+Then, we parse the whole objects. If you try yourself, you'll see it is taking some time. Indeed, some properties may contain large data requiring more time to be parsed. This may be the case for properties like "authors" or "organizations".
+
+```{r, eval=FALSE}
+parsed_software <- oag_parse_object(software_2026_15_01)
+```
+
+If you do not need all the data to be parsed, you can use the `selection` argument to select of subset of properties to parse and return. In the following example, we tell `oag_parse_object()` to only parse the id, title publisher, and URL of the repository for the software published in January 2026.
+
+```{r}
+parsed_software <- oag_parse_object(
+  software_2026_15_01,
+  selection = c("id", "mainTitle", "publisher", "codeRepositoryUrl")
+)
 ```
